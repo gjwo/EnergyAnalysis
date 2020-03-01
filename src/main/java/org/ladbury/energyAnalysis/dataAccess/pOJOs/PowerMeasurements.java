@@ -1,4 +1,4 @@
-package org.ladbury.energyAnalysis.dataAccess;
+package org.ladbury.energyAnalysis.dataAccess.pOJOs;
 
 import org.influxdb.annotation.Column;
 import org.influxdb.annotation.TimeColumn;
@@ -17,6 +17,8 @@ public class PowerMeasurements
     private double apparentpower;
     @Column(name = "reactivepower", tag = true)
     private double reactivepower;
+    @Column(name = "powerfactor", tag = true)
+    private double powerfactor;
 
     public Instant getTime()
     {
@@ -50,11 +52,19 @@ public class PowerMeasurements
     {
         this.reactivepower = reactivepower;
     }
+    public double getPowerfactor()
+    {
+        return powerfactor;
+    }
+    public void setPowerfactor(double powerfactor)
+    {
+        this.powerfactor = powerfactor;
+    }
 
     @Override
     public String toString()
     {
-        return "Measurement{" +
+        return "AllMeasurements{" +
                 "time=" + time +
                 ", power=" + power +
                 ", apparentpower=" + apparentpower +

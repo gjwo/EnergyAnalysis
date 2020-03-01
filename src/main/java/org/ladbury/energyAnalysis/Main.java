@@ -4,7 +4,7 @@ import org.influxdb.InfluxDB;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.impl.InfluxDBResultMapper;
 import org.ladbury.energyAnalysis.dataAccess.InfluxDataSource;
-import org.ladbury.energyAnalysis.dataAccess.Measurement;
+import org.ladbury.energyAnalysis.dataAccess.pOJOs.AllMeasurements;
 import org.ladbury.energyAnalysis.dataAccess.QueryName;
 import org.ladbury.energyAnalysis.dataAccess.Querys;
 
@@ -35,9 +35,9 @@ public class Main
         }*/
 
         InfluxDBResultMapper resultMapper = new InfluxDBResultMapper(); // thread-safe - can be reused
-        List<Measurement> measurements = resultMapper.toPOJO(res, Measurement.class);
-        for (Measurement m: measurements) System.out.println(m);
-        System.out.println(measurements.size());
+        List<AllMeasurements> allMeasurements = resultMapper.toPOJO(res, AllMeasurements.class);
+        for (AllMeasurements m: allMeasurements) System.out.println(m);
+        System.out.println(allMeasurements.size());
 
         influxDataSource.close();
     }

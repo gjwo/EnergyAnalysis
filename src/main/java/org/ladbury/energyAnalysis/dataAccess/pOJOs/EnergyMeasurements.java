@@ -1,4 +1,4 @@
-package org.ladbury.energyAnalysis.dataAccess;
+package org.ladbury.energyAnalysis.dataAccess.pOJOs;
 
 import org.influxdb.annotation.Column;
 import org.influxdb.annotation.TimeColumn;
@@ -44,7 +44,7 @@ public class EnergyMeasurements
     @Override
     public String toString()
     {
-        return "Measurement{" +
+        return "AllMeasurements{" +
                 "time=" + time +
                 ", Energy=" + energy +
                 ", Cumulative Energy=" + cumulativeenergy +
