@@ -1,8 +1,6 @@
 package org.ladbury.energyAnalysis;
 
 import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBFactory;
-import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.impl.InfluxDBResultMapper;
 import org.ladbury.energyAnalysis.dataAccess.InfluxDataSource;
