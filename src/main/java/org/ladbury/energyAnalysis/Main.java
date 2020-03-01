@@ -1,24 +1,31 @@
-package org.ladbury.EnergyAnalysis;
+package org.ladbury.energyAnalysis;
 
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.impl.InfluxDBResultMapper;
+import org.ladbury.energyAnalysis.dataAccess.InfluxDataSource;
+import org.ladbury.energyAnalysis.dataAccess.Measurement;
+import org.ladbury.energyAnalysis.dataAccess.QueryName;
+import org.ladbury.energyAnalysis.dataAccess.Querys;
 
 import java.util.List;
 
 public class Main
 {
+    private static InfluxDataSource influxDataSource;
+    private static Querys querys ;
     public static void main(String[] args)
     {
-        InfluxDB influxDB = InfluxDBFactory.connect("http://10.0.128.2:8086");
         String dbName = "energy";
+        querys = new Querys(dbName);
+        influxDataSource = new InfluxDataSource("http://10.0.128.2:8086",dbName);
+        InfluxDB influxDB = influxDataSource.getInfluxDB();
+
 
         //Query query = new Query("SELECT * FROM \"Whole_House\" WHERE time >= now() - 15m GROUP BY time(1s) fill(none)", dbName);
-        Query query = new Query("SELECT * FROM \"Whole_House\" WHERE time >= now() - 15m", dbName);
-        QueryResult res = influxDB.query(query);
-        influxDB.close();
+        QueryResult res = influxDB.query(querys.getQuery(QueryName.LAST_MEASUREMENTS));
         /*for (QueryResult.Result r:res.getResults())
         {
             for (QueryResult.Series s:r.getSeries())
@@ -33,5 +40,7 @@ public class Main
         List<Measurement> measurements = resultMapper.toPOJO(res, Measurement.class);
         for (Measurement m: measurements) System.out.println(m);
         System.out.println(measurements.size());
+
+        influxDataSource.close();
     }
 }

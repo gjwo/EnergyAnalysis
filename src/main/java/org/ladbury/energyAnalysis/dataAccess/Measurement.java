@@ -1,4 +1,4 @@
-package org.ladbury.EnergyAnalysis;
+package org.ladbury.energyAnalysis.dataAccess;
 
 import org.influxdb.annotation.*;
 
