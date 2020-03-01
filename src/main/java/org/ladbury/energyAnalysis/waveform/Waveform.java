@@ -8,12 +8,12 @@ public class Waveform<E> extends ArrayList
 {
     private final List<TimedElement> elements;
 
-    Waveform()
+    public Waveform()
     {
         elements = new ArrayList<>();
     }
 
-    Waveform(List<? extends TimedElement<E>> list)
+    public Waveform(List<? extends TimedElement<E>> list)
     {
         elements = new ArrayList<>();
         for(TimedElement<E> element: list){
@@ -21,7 +21,7 @@ public class Waveform<E> extends ArrayList
         }
     }
 
-    Instant containsSample(Waveform sample)
+    public Instant containsSample(Waveform sample)
     {
         return null;
     }
