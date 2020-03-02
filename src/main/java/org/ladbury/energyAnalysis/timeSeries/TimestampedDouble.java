@@ -6,9 +6,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
 
-public class TimestampedDouble
+public class TimestampedDouble implements Timestamped<Double>
 {
-    private double value;
+    private Double value;
     private Instant timestamp;
 
     /**
@@ -16,7 +16,7 @@ public class TimestampedDouble
      */
     public TimestampedDouble()
     {
-        value = 0;
+        value = 0.0;
         timestamp = Instant.now();
     }
 
@@ -101,4 +101,21 @@ public class TimestampedDouble
         return timestamp.toEpochMilli();
     }
 
+    @Override
+    public Instant timestamp()
+    {
+        return timestamp;
+    }
+
+    @Override
+    public String timestampString()
+    {
+        return toString();
+    }
+
+    @Override
+    public boolean happenedBetween(Instant ts1, Instant ts2)
+    {
+        return (timestamp.isBefore(ts2)&& timestamp.isAfter(ts1));
+    }
 }

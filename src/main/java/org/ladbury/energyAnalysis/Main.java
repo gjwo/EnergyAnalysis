@@ -7,8 +7,7 @@ import org.ladbury.energyAnalysis.dataAccess.InfluxDataSource;
 import org.ladbury.energyAnalysis.dataAccess.pOJOs.AllMeasurements;
 import org.ladbury.energyAnalysis.dataAccess.QueryName;
 import org.ladbury.energyAnalysis.dataAccess.Querys;
-import org.ladbury.energyAnalysis.waveform.Waveform;
-import org.ladbury.energyAnalysis.waveform.elementTypes.PowerReal;
+import org.ladbury.energyAnalysis.timeSeries.Waveform;
 
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class Main
                 s.getColumns().forEach(System.out::println);
             }
         }*/
-        Waveform<PowerReal> powerRealWaveform = new Waveform<>();
+        Waveform powerRealWaveform = new Waveform();
 
         InfluxDBResultMapper resultMapper = new InfluxDBResultMapper(); // thread-safe - can be reused
         List<AllMeasurements> allMeasurements = resultMapper.toPOJO(res, AllMeasurements.class);
