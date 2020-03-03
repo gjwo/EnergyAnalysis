@@ -9,6 +9,7 @@ import org.ladbury.energyAnalysis.dataAccess.QueryName;
 import org.ladbury.energyAnalysis.dataAccess.Querys;
 import org.ladbury.energyAnalysis.timeSeries.Waveform;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main
@@ -23,6 +24,7 @@ public class Main
         influxDataSource = new InfluxDataSource("http://10.0.128.2:8086",dbName);
 
         QueryResult res;
+        ArrayList<String> resultsList;
 
         res = influxDataSource.query(QueryName.SHOW_RETENTION);
         System.out.println("Retention");
@@ -30,9 +32,12 @@ public class Main
         System.out.println("Series");
         res = influxDataSource.query(QueryName.SHOW_SERIES);
         System.out.println(res.toString());
-        System.out.println("<Measurements>");
+        System.out.println("Measurements");
         res = influxDataSource.query(QueryName.SHOW_MEASUREMENTS);
+        resultsList = influxDataSource.getMeasurements();
         System.out.println(res.toString());
+        System.out.println(resultsList.toString());
+        System.out.println();
         System.out.println("Tag Keys");
         res = influxDataSource.query(QueryName.SHOW_TAG_KEYS);
         System.out.println(res.toString());

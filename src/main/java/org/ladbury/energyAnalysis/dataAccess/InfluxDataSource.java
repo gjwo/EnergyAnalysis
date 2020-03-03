@@ -35,7 +35,7 @@ public class InfluxDataSource
     public void close(){
         influxDBServer.close();
     }
-    public void initialiseValidDBs(){
+    private void initialiseValidDBs(){
         QueryResult res;
         res =influxDBServer.query(new Query("SHOW DATABASES"));
         List<QueryResult.Result> resultsList= res.getResults();
@@ -52,5 +52,22 @@ public class InfluxDataSource
     public QueryResult query(QueryName queryName)
     {
         return influxDBServer.query( Main.getQuerys().getQuery(queryName));
+    }
+
+    public ArrayList<String> getMeasurements(){
+        QueryResult queryResult;
+        ArrayList<String> results = new ArrayList<>();
+        queryResult = influxDBServer.query(new Query("SHOW MEASUREMENTS",getDbName()));
+        List<QueryResult.Result> resultsList= queryResult.getResults();
+        List <QueryResult.Series> resultSeriesList;
+        for (QueryResult.Result result :resultsList) {
+            resultSeriesList = result.getSeries();
+            for (QueryResult.Series series : resultSeriesList){
+                for (List<Object> objects : series.getValues()) {
+                    results.add(objects.toArray()[0].toString());
+                }
+            }
+        }
+        return results;
     }
 }
