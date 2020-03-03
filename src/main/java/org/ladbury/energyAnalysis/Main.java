@@ -15,32 +15,40 @@ public class Main
 {
     private static InfluxDataSource influxDataSource;
     private static Querys querys ;
+    public static Querys getQuerys() {return querys;}
     public static void main(String[] args)
     {
         String dbName = "energy";
         querys = new Querys(dbName);
         influxDataSource = new InfluxDataSource("http://10.0.128.2:8086",dbName);
-        InfluxDB influxDB = influxDataSource.getInfluxDB();
 
+        QueryResult res;
 
-        //Query query = new Query("SELECT * FROM \"Whole_House\" WHERE time >= now() - 15m GROUP BY time(1s) fill(none)", dbName);
-        QueryResult res = influxDB.query(querys.getQuery(QueryName.LAST_MEASUREMENTS));
-        /*for (QueryResult.Result r:res.getResults())
-        {
-            for (QueryResult.Series s:r.getSeries())
-            {
-                s.getValues().forEach(System.out::println);
-                System.out.println(s.getValues().size() + " values");
-                s.getColumns().forEach(System.out::println);
-            }
-        }*/
-        Waveform powerRealWaveform = new Waveform();
+        res = influxDataSource.query(QueryName.SHOW_RETENTION);
+        System.out.println("Retention");
+        System.out.println(res.toString());
+        System.out.println("Series");
+        res = influxDataSource.query(QueryName.SHOW_SERIES);
+        System.out.println(res.toString());
+        System.out.println("<Measurements>");
+        res = influxDataSource.query(QueryName.SHOW_MEASUREMENTS);
+        System.out.println(res.toString());
+        System.out.println("Tag Keys");
+        res = influxDataSource.query(QueryName.SHOW_TAG_KEYS);
+        System.out.println(res.toString());
+        System.out.println("Field Keys");
+        res = influxDataSource.query(QueryName.SHOW_FIELD_KEYS);
+        System.out.println(res.toString());
+
+        res = influxDataSource.query(QueryName.LAST_MEASUREMENTS);
 
         InfluxDBResultMapper resultMapper = new InfluxDBResultMapper(); // thread-safe - can be reused
         List<AllMeasurements> allMeasurements = resultMapper.toPOJO(res, AllMeasurements.class);
         for (AllMeasurements m: allMeasurements) System.out.println(m);
         System.out.println(allMeasurements.size());
 
+        Waveform powerRealWaveform = new Waveform();
+
         influxDataSource.close();
-    }
+     }
 }
