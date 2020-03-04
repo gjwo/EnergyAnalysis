@@ -34,11 +34,7 @@ public class InfluxDataSource
         if (!found) System.exit(2);
         meters = new Meters(getMeasurements());
         SetFieldKeys(meters);
-        for (Meter meter : meters){
-            System.out.println("<"+meter.toString()+">");
-        }
-
-    }
+     }
 
     public InfluxDB getInfluxDBServer(){return influxDBServer;}
     public String getDbName(){return dbName;}
