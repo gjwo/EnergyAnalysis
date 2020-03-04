@@ -8,6 +8,7 @@ import org.ladbury.energyAnalysis.Main;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class InfluxDataSource
 {
@@ -15,17 +16,28 @@ public class InfluxDataSource
     private final String url;
     private String dbName;
     private final List<String> validDBs = new ArrayList<String>();
+    private Meters meters;
     public InfluxDataSource(String url, String dbName)
     {
         this.url = url;
         this.dbName = dbName;
         influxDBServer = InfluxDBFactory.connect(url);
         initialiseValidDBs();
+        boolean found = false;
         for (String dbn: validDBs)
         {
-            if (dbn.compareTo(this.dbName) == 0) return;
+            if (dbn.compareTo(this.dbName) == 0){
+                found = true;
+                break;
+            }
         }
-        System.exit(2);
+        if (!found) System.exit(2);
+        meters = new Meters(getMeasurements());
+        SetFieldKeys(meters);
+        for (Meter meter : meters){
+            System.out.println("<"+meter.toString()+">");
+        }
+
     }
 
     public InfluxDB getInfluxDBServer(){return influxDBServer;}
@@ -70,4 +82,24 @@ public class InfluxDataSource
         }
         return results;
     }
+
+    public void SetFieldKeys(Meters meters)
+    {
+        QueryResult queryResult;
+        queryResult = influxDBServer.query(new Query("SHOW FIELD KEYS",getDbName()));
+        List<QueryResult.Result> resultsList= queryResult.getResults();
+        List <QueryResult.Series> resultSeriesList;
+        Meter meter;
+        for (QueryResult.Result result :resultsList) {
+            resultSeriesList = result.getSeries();
+            for (QueryResult.Series series : resultSeriesList){
+                String measurementName =  series.getName();
+                meter = meters.getMeter(measurementName);
+                for (List<Object> objects : series.getValues()) {
+                    meter.addMetricDBName(objects.toArray()[0].toString());
+                }
+            }
+        }
+    }
+
 }
