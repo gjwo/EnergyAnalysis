@@ -1,7 +1,5 @@
 package org.ladbury.energyAnalysis.timeSeries;
 
-import org.ladbury.energyAnalysis.dataAccess.pOJOs.AllMeasurements;
-
 import java.time.Instant;
 
 public class Waveform extends TimeSeries
@@ -15,7 +13,17 @@ public class Waveform extends TimeSeries
     {
         super(grain);
     }
-
+    public Waveform(Granularity grain,TimeSeries timeSeries){
+        super(grain);
+        for(TimestampedDouble tsd: timeSeries)
+        {
+            this.add(tsd);
+        }
+        this.getIdentification().setName(timeSeries.getIdentification().getName());
+        this.getIdentification().setSource(timeSeries.getIdentification().getSource());
+        this.getDescription().setMetricType(timeSeries.getDescription().getMetricType());
+        this.summarise();
+    }
     public Instant containsSample(Waveform sample)
     {
         return null;

@@ -8,9 +8,9 @@ import java.util.ArrayList;
 
 public class TimeSeries extends ArrayList<TimestampedDouble>
 {
-    protected TimeSeriesSummary summary;
-    protected Description description;
-    protected Identification identification;
+    protected final TimeSeriesSummary summary;
+    protected final Description description;
+    protected final Identification identification;
 
     public TimeSeries(Granularity grain)
     {
@@ -29,32 +29,20 @@ public class TimeSeries extends ArrayList<TimestampedDouble>
             }
             summary.setEarliest(this.get(0).getTimestamp());
             summary.setLatest(this.get(this.size()-1).getTimestamp());
-        }
+        } else System.out.println("size 0 in summarise");
     }
     // getters and setters
     public TimeSeriesSummary getSummary()
     {
         return summary;
     }
-    public void setSummary(TimeSeriesSummary summary)
-    {
-        this.summary = summary;
-    }
     public Description getDescription()
     {
         return description;
     }
-    public void setDescription(Description description)
-    {
-        this.description = description;
-    }
     public Identification getIdentification()
     {
         return identification;
-    }
-    public void setIdentification(Identification identification)
-    {
-        this.identification = identification;
     }
 
     @Override

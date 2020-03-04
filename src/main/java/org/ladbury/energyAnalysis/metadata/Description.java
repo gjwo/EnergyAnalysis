@@ -14,11 +14,12 @@ public class Description
         isCumulative = false;
     }
 
+    public MetricType getMetricType(){return metricType;}
+    public void setMetricType(MetricType metricType){this.metricType = metricType;}
     public boolean isCumulative()
     {
         return isCumulative;
     }
-
     public void setCumulative(boolean cumulative)
     {
         isCumulative = cumulative;

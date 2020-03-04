@@ -57,26 +57,31 @@ public class Meter
 
         List<PowerMeasurements> powerMeasurements = resultMapper.toPOJO(res, PowerMeasurements.class);
         TimeSeries timeSeries;
-
+        //TODO add the rest of the types of data supported
         timeSeries = new TimeSeries(Granularity.SECOND);
-        timeSeries.setIdentification(new Identification(MetricType.REAL_POWER.getMetricName(),name));
-        timeSeries.setDescription(new Description(MetricType.REAL_POWER));
+        timeSeries.getIdentification().setName(MetricType.REAL_POWER.getMetricName());
+        timeSeries.getIdentification().setSource(name);
+        timeSeries.getDescription().setMetricType(MetricType.REAL_POWER);
         readingsSet.put(MetricType.REAL_POWER,timeSeries);
 
         timeSeries = new TimeSeries(Granularity.SECOND);
-        timeSeries.setIdentification(new Identification(MetricType.REACTIVE_POWER.getMetricName(),name));
-        timeSeries.setDescription(new Description(MetricType.REACTIVE_POWER));
+        timeSeries.getIdentification().setName(MetricType.REACTIVE_POWER.getMetricName());
+        timeSeries.getIdentification().setSource(name);
+        timeSeries.getDescription().setMetricType(MetricType.REACTIVE_POWER);
         readingsSet.put(MetricType.REACTIVE_POWER,timeSeries);
 
         timeSeries = new TimeSeries(Granularity.SECOND);
-        timeSeries.setIdentification(new Identification(MetricType.APPARENT_POWER.getMetricName(),name));
-        timeSeries.setDescription(new Description(MetricType.APPARENT_POWER));
+        timeSeries.getIdentification().setName(MetricType.APPARENT_POWER.getMetricName());
+        timeSeries.getIdentification().setSource(name);
+        timeSeries.getDescription().setMetricType(MetricType.APPARENT_POWER);
         readingsSet.put(MetricType.APPARENT_POWER,timeSeries);
-        timeSeries = new TimeSeries(Granularity.SECOND);
 
-        timeSeries.setIdentification(new Identification(MetricType.POWERFACTOR.getMetricName(),name));
-        timeSeries.setDescription(new Description(MetricType.POWERFACTOR));
+        timeSeries = new TimeSeries(Granularity.SECOND);
+        timeSeries.getIdentification().setName(MetricType.POWERFACTOR.getMetricName());
+        timeSeries.getIdentification().setSource(name);
+        timeSeries.getDescription().setMetricType(MetricType.POWERFACTOR);
         readingsSet.put(MetricType.POWERFACTOR,timeSeries);
+
         for (PowerMeasurements  m: powerMeasurements)
         {
             readingsSet.get(MetricType.REAL_POWER).add(new TimestampedDouble(m.getPower(),m.getTime()));
@@ -88,10 +93,6 @@ public class Meter
         readingsSet.get(MetricType.REACTIVE_POWER).summarise();
         readingsSet.get(MetricType.APPARENT_POWER).summarise();
         readingsSet.get(MetricType.POWERFACTOR).summarise();
-        System.out.println(readingsSet.get(MetricType.REAL_POWER).getIdentification().toString());
-        System.out.println(readingsSet.get(MetricType.REAL_POWER).getDescription().toString());
-        System.out.println(readingsSet.get(MetricType.REAL_POWER).getSummary().toString());
-        readingsSet.get(MetricType.REAL_POWER).printValues();
     }
     public TimeSeries getSeries(MetricType metricType){
         if(readingsSet.containsKey(metricType)) return readingsSet.get(metricType);

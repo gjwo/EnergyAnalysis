@@ -6,6 +6,7 @@ import org.ladbury.energyAnalysis.dataAccess.Querys;
 import org.ladbury.energyAnalysis.metadata.MetricType;
 import org.ladbury.energyAnalysis.timeSeries.Granularity;
 import org.ladbury.energyAnalysis.timeSeries.TimeSeries;
+import org.ladbury.energyAnalysis.timeSeries.TimestampedDouble;
 import org.ladbury.energyAnalysis.timeSeries.Waveform;
 
 public class Main
@@ -22,12 +23,15 @@ public class Main
         querys = new Querys(dbName);
         influxDataSource = new InfluxDataSource("http://10.0.128.2:8086",dbName);
         Meter wholeHouse = influxDataSource.getMeters().getMeter("Whole_House");
-        System.out.println(wholeHouse.toString());
         wholeHouse.loadLatestReadingsSet(30);
-        TimeSeries realPowerSeries = wholeHouse.getSeries(MetricType.REAL_POWER);
-        Waveform powerRealWaveform = new Waveform(Granularity.SECOND);
-        powerRealWaveform.addAll(realPowerSeries);
-
+        TimeSeries ts = wholeHouse.getSeries(MetricType.REAL_POWER);
+        Waveform realPowerWaveform = new Waveform(Granularity.SECOND,ts);
+        System.out.println(realPowerWaveform.getIdentification().toString());
+        System.out.println(realPowerWaveform.getDescription().toString());
+        System.out.println(realPowerWaveform.getSummary().toString());
+        for (TimestampedDouble tsd : realPowerWaveform){
+            System.out.println(tsd.timestampString());
+        }
         influxDataSource.close();
      }
 }
