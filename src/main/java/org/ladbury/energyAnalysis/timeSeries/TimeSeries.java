@@ -71,7 +71,7 @@ public class TimeSeries extends ArrayList<TimestampedDouble>
     }
     public void printValues(){
         for( TimestampedDouble element : this){
-            System.out.println("["+element.timestampString()+" : "+ element.getValue()+"]");
+            System.out.println("["+element.timestampString()+"]");
         }
     }
 

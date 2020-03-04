@@ -8,6 +8,11 @@ public class Identification
     {
         this.name = name;
     }
+    public Identification(String name, String source)
+    {
+        this.name = name;
+        this.source = source;
+    }
 
     public String getName()
     {

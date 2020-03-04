@@ -4,6 +4,8 @@ import org.influxdb.dto.QueryResult;
 import org.influxdb.impl.InfluxDBResultMapper;
 import org.ladbury.energyAnalysis.Main;
 import org.ladbury.energyAnalysis.dataAccess.pOJOs.PowerMeasurements;
+import org.ladbury.energyAnalysis.metadata.Description;
+import org.ladbury.energyAnalysis.metadata.Identification;
 import org.ladbury.energyAnalysis.metadata.MetricType;
 import org.ladbury.energyAnalysis.timeSeries.Granularity;
 import org.ladbury.energyAnalysis.timeSeries.TimeSeries;
@@ -54,10 +56,27 @@ public class Meter
         QueryResult res = influxDataSource.query(query);
 
         List<PowerMeasurements> powerMeasurements = resultMapper.toPOJO(res, PowerMeasurements.class);
-        readingsSet.put(MetricType.REAL_POWER,new TimeSeries(Granularity.SECOND));
-        readingsSet.put(MetricType.REACTIVE_POWER,new TimeSeries(Granularity.SECOND));
-        readingsSet.put(MetricType.APPARENT_POWER,new TimeSeries(Granularity.SECOND));
-        readingsSet.put(MetricType.POWERFACTOR,new TimeSeries(Granularity.SECOND));
+        TimeSeries timeSeries;
+
+        timeSeries = new TimeSeries(Granularity.SECOND);
+        timeSeries.setIdentification(new Identification(MetricType.REAL_POWER.getMetricName(),name));
+        timeSeries.setDescription(new Description(MetricType.REAL_POWER));
+        readingsSet.put(MetricType.REAL_POWER,timeSeries);
+
+        timeSeries = new TimeSeries(Granularity.SECOND);
+        timeSeries.setIdentification(new Identification(MetricType.REACTIVE_POWER.getMetricName(),name));
+        timeSeries.setDescription(new Description(MetricType.REACTIVE_POWER));
+        readingsSet.put(MetricType.REACTIVE_POWER,timeSeries);
+
+        timeSeries = new TimeSeries(Granularity.SECOND);
+        timeSeries.setIdentification(new Identification(MetricType.APPARENT_POWER.getMetricName(),name));
+        timeSeries.setDescription(new Description(MetricType.APPARENT_POWER));
+        readingsSet.put(MetricType.APPARENT_POWER,timeSeries);
+        timeSeries = new TimeSeries(Granularity.SECOND);
+
+        timeSeries.setIdentification(new Identification(MetricType.POWERFACTOR.getMetricName(),name));
+        timeSeries.setDescription(new Description(MetricType.POWERFACTOR));
+        readingsSet.put(MetricType.POWERFACTOR,timeSeries);
         for (PowerMeasurements  m: powerMeasurements)
         {
             readingsSet.get(MetricType.REAL_POWER).add(new TimestampedDouble(m.getPower(),m.getTime()));
