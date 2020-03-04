@@ -64,7 +64,7 @@ public class PowerMeasurements
     @Override
     public String toString()
     {
-        return "AllMeasurements{" +
+        return "PowerMeasurements{" +
                 "time=" + time +
                 ", power=" + power +
                 ", apparentpower=" + apparentpower +

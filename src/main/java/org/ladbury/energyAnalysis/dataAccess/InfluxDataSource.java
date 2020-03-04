@@ -35,17 +35,15 @@ public class InfluxDataSource
         meters = new Meters(getMeasurements());
         SetFieldKeys(meters);
      }
-
-    public InfluxDB getInfluxDBServer(){return influxDBServer;}
-    public String getDbName(){return dbName;}
+    //getters
+    public InfluxDB getInfluxDBServer(){return this.influxDBServer;}
+    public String getDbName(){return this.dbName;}
     public void setDbName(String dbName){this.dbName = dbName;}
+    public Meters getMeters(){return this.meters;}
 
-    public void close(){
-        influxDBServer.close();
-    }
     private void initialiseValidDBs(){
         QueryResult res;
-        res =influxDBServer.query(new Query("SHOW DATABASES"));
+        res = influxDBServer.query(new Query("SHOW DATABASES"));
         List<QueryResult.Result> resultsList= res.getResults();
         List <QueryResult.Series> resultSeriesList;
         for (QueryResult.Result result :resultsList) {
@@ -57,11 +55,14 @@ public class InfluxDataSource
             }
         }
     }
-    public QueryResult query(QueryName queryName)
+    public QueryResult queryByName(QueryName queryName)
     {
         return influxDBServer.query( Main.getQuerys().getQuery(queryName));
     }
 
+    public QueryResult query(String queryString){
+        return influxDBServer.query(new Query(queryString,dbName));
+    }
     public ArrayList<String> getMeasurements(){
         QueryResult queryResult;
         ArrayList<String> results = new ArrayList<>();
@@ -98,4 +99,7 @@ public class InfluxDataSource
         }
     }
 
+    public void close(){
+        influxDBServer.close();
+    }
 }

@@ -28,4 +28,13 @@ public class Identification
     {
         this.source = source;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Identification{" +
+                "name='" + name + '\'' +
+                ", source='" + source + '\'' +
+                '}';
+    }
 }

@@ -1,5 +1,7 @@
 package org.ladbury.energyAnalysis.timeSeries;
 
+import org.ladbury.energyAnalysis.dataAccess.pOJOs.AllMeasurements;
+
 import java.time.Instant;
 
 public class Waveform extends TimeSeries
@@ -20,4 +22,7 @@ public class Waveform extends TimeSeries
     }
     public Waveform minus(Waveform sample){return null;}
     public Waveform plus(Waveform sample){return null;}
+    public void print(){
+        for (TimestampedDouble td: this) System.out.println(td.toString());
+    }
 }

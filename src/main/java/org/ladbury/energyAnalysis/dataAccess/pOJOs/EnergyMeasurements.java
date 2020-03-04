@@ -44,7 +44,7 @@ public class EnergyMeasurements
     @Override
     public String toString()
     {
-        return "AllMeasurements{" +
+        return "EnergyMeasurements{" +
                 "time=" + time +
                 ", Energy=" + energy +
                 ", Cumulative Energy=" + cumulativeenergy +

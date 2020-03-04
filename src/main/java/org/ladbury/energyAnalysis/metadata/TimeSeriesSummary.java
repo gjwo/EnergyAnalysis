@@ -73,4 +73,16 @@ public class TimeSeriesSummary
     {
         this.ceiling = ceiling;
     }
+
+    @Override
+    public String toString()
+    {
+        return "TimeSeriesSummary{" +
+                "earliest=" + earliest +
+                ", latest=" + latest +
+                ", grain=" + grain +
+                ", floor=" + floor +
+                ", ceiling=" + ceiling +
+                '}';
+    }
 }

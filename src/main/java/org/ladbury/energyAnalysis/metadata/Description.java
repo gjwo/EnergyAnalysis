@@ -23,4 +23,13 @@ public class Description
     {
         isCumulative = cumulative;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Description{" +
+                "metricType=" + metricType +
+                ", isCumulative=" + isCumulative +
+                '}';
+    }
 }
