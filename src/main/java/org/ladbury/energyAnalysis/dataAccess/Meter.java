@@ -5,11 +5,13 @@ import org.influxdb.impl.InfluxDBResultMapper;
 import org.ladbury.energyAnalysis.Main;
 import org.ladbury.energyAnalysis.dataAccess.pOJOs.BasicAndPowerMeasurements;
 import org.ladbury.energyAnalysis.dataAccess.pOJOs.EnergyMeasurements;
+import org.ladbury.energyAnalysis.dataAccess.pOJOs.RealPowerMeasurement;
 import org.ladbury.energyAnalysis.metadata.MetricType;
 import org.ladbury.energyAnalysis.timeSeries.Granularity;
 import org.ladbury.energyAnalysis.timeSeries.TimeSeries;
 import org.ladbury.energyAnalysis.timeSeries.TimestampedDouble;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,18 +50,60 @@ public class Meter
                 '}';
     }
     private String qm(String metric){return " MEAN(\""+metric+"\") AS \""+metric+"\" ";}
-    public void loadLatestReadingsSet(int seconds){
+    public void loadLatestReadingsSet(int seconds)
+    {
         seconds++; //to get the right number of readings
-        String query = "SELECT"+ qm("power")+","
-                                + qm("reactivepower")+","
-                                + qm("apparentpower")+","
-                                + qm("powerfactor")+","
-                                + qm("current")+","
-                                + qm("voltage")
-                                +"FROM "+this.name+ " WHERE time >=now() - "+seconds+"s"+" GROUP BY time(1s)";
+        String query = "SELECT" + qm("power") + ","
+                + qm("reactivepower") + ","
+                + qm("apparentpower") + ","
+                + qm("powerfactor") + ","
+                + qm("current") + ","
+                + qm("voltage")
+                + "FROM " + this.name + " WHERE time >=now() - " + seconds + "s" + " GROUP BY time(1s)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
-        QueryResult res = influxDataSource.query(query);
+        processBasicAndPowerReadings(influxDataSource.query(query));
+    }
+    public void loadReadingsSet(Instant t1, Instant t2)
+    {
+
+        String query = "SELECT" + qm("power") + ","
+                + qm("reactivepower") + ","
+                + qm("apparentpower") + ","
+                + qm("powerfactor") + ","
+                + qm("current") + ","
+                + qm("voltage")
+                + "FROM " + this.name + " WHERE time >= '"+t1.toString()+ "' AND  time <= '"+t2.toString()+ "' GROUP BY time(1s)";
+        System.out.println(query);
+        influxDataSource = Main.getInfluxDataSource();
+        processBasicAndPowerReadings(influxDataSource.query(query));
+    }
+    public void loadReadings(MetricType metricType, Instant t1, Instant t2)
+    {
+
+        String query = "SELECT" + " MEAN(\""+MetricPair.getMetricDBName(metricType)+"\") AS \""+MetricPair.getMetricDBName(metricType)+"\" "
+                + "FROM " + this.name + " WHERE time >= '"+t1.toString()+ "' AND  time <= '"+t2.toString()+ "' GROUP BY time(1s)";
+        System.out.println(query);
+        influxDataSource = Main.getInfluxDataSource();
+        processReadingsResult(influxDataSource.query(query),metricType);
+    }
+
+    public void processReadingsResult(QueryResult res, MetricType metricType){
+        List<RealPowerMeasurement> realPowerMeasurement = resultMapper.toPOJO(res, RealPowerMeasurement.class);
+        TimeSeries timeSeries;
+
+        timeSeries = new TimeSeries(Granularity.SECOND);
+        timeSeries.getIdentification().setName(MetricType.REAL_POWER.getMetricName());
+        timeSeries.getIdentification().setMeterName(name);
+        timeSeries.getDescription().setMetricType(MetricType.REAL_POWER);
+        readingsSet.put(MetricType.REAL_POWER,timeSeries);
+        for (RealPowerMeasurement  m: realPowerMeasurement)
+        {
+            readingsSet.get(MetricType.REAL_POWER).add(new TimestampedDouble(m.getPower(),m.getTime()));
+        }
+        readingsSet.get(MetricType.REAL_POWER).summarise();
+    }
+    public void processBasicAndPowerReadings(QueryResult res){
 
         List<BasicAndPowerMeasurements> basicAndPowerMeasurements = resultMapper.toPOJO(res, BasicAndPowerMeasurements.class);
         TimeSeries timeSeries;
@@ -117,13 +161,15 @@ public class Meter
         readingsSet.get(MetricType.CURRENT).summarise();
     }
     private String qs(String metric){return " SUM(\""+metric+"\") AS \""+metric+"\" ";}
-    public void loadLatestEnergyReadingsSet(int minutes){
+    public void loadLatestEnergyReadingsSet(int minutes)
+    {
         minutes++; //to get the right number of readings
-        String query = "SELECT" + qs("energy")+ "," + qs("cumulativeenergy") + "FROM "+this.name+ " WHERE time >=now() - "+minutes+"m"+" GROUP BY time(5m)";
+        String query = "SELECT" + qs("energy") + "," + qs("cumulativeenergy") + "FROM " + this.name + " WHERE time >=now() - " + minutes + "m" + " GROUP BY time(5m)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
-        QueryResult res = influxDataSource.query(query);
-
+        processEnergyReadings(influxDataSource.query(query));
+    }
+    public void processEnergyReadings(QueryResult res){
         List<EnergyMeasurements> energyMeasurements = resultMapper.toPOJO(res, EnergyMeasurements.class);
         TimeSeries timeSeries;
 
