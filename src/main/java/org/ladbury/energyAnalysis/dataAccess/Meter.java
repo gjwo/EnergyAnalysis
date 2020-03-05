@@ -5,7 +5,6 @@ import org.influxdb.impl.InfluxDBResultMapper;
 import org.ladbury.energyAnalysis.Main;
 import org.ladbury.energyAnalysis.dataAccess.pOJOs.BasicAndPowerMeasurements;
 import org.ladbury.energyAnalysis.dataAccess.pOJOs.EnergyMeasurements;
-import org.ladbury.energyAnalysis.dataAccess.pOJOs.PowerMeasurements;
 import org.ladbury.energyAnalysis.metadata.MetricType;
 import org.ladbury.energyAnalysis.timeSeries.Granularity;
 import org.ladbury.energyAnalysis.timeSeries.TimeSeries;
@@ -48,9 +47,16 @@ public class Meter
                 ", supportedMetricTypes=" + supportedMetricTypes +
                 '}';
     }
+    private String qm(String metric){return " MEAN(\""+metric+"\") AS \""+metric+"\" ";}
     public void loadLatestReadingsSet(int seconds){
         seconds++; //to get the right number of readings
-        String query = "SELECT * FROM "+this.name+ " WHERE time >=now() - "+seconds+"s";
+        String query = "SELECT"+ qm("power")+","
+                                + qm("reactivepower")+","
+                                + qm("apparentpower")+","
+                                + qm("powerfactor")+","
+                                + qm("current")+","
+                                + qm("voltage")
+                                +"FROM "+this.name+ " WHERE time >=now() - "+seconds+"s"+" GROUP BY time(1s)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         QueryResult res = influxDataSource.query(query);
@@ -110,9 +116,10 @@ public class Meter
         readingsSet.get(MetricType.VOLTAGE).summarise();
         readingsSet.get(MetricType.CURRENT).summarise();
     }
+    private String qs(String metric){return " SUM(\""+metric+"\") AS \""+metric+"\" ";}
     public void loadLatestEnergyReadingsSet(int minutes){
         minutes++; //to get the right number of readings
-        String query = "SELECT * FROM "+this.name+ " WHERE time >=now() - "+minutes+"m";
+        String query = "SELECT" + qs("energy")+ "," + qs("cumulativeenergy") + "FROM "+this.name+ " WHERE time >=now() - "+minutes+"m"+" GROUP BY time(5m)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         QueryResult res = influxDataSource.query(query);
@@ -120,13 +127,13 @@ public class Meter
         List<EnergyMeasurements> energyMeasurements = resultMapper.toPOJO(res, EnergyMeasurements.class);
         TimeSeries timeSeries;
 
-        timeSeries = new TimeSeries(Granularity.TEN_MINUTE);
+        timeSeries = new TimeSeries(Granularity.FIVE_MINUTE);
         timeSeries.getIdentification().setName(MetricType.ENERGY.getMetricName());
         timeSeries.getIdentification().setMeterName(name);
         timeSeries.getDescription().setMetricType(MetricType.ENERGY);
         readingsSet.put(MetricType.ENERGY,timeSeries);
 
-        timeSeries = new TimeSeries(Granularity.TEN_MINUTE);
+        timeSeries = new TimeSeries(Granularity.FIVE_MINUTE);
         timeSeries.getIdentification().setName(MetricType.ENERGY_KILO.getMetricName());
         timeSeries.getIdentification().setMeterName(name);
         timeSeries.getDescription().setMetricType(MetricType.ENERGY_KILO);

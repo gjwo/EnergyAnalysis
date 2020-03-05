@@ -7,6 +7,7 @@ public enum Granularity
     SECOND 		(Timestamped.SECOND_IN_MS),
     TEN_SECOND 	(Timestamped.SECOND_IN_MS*10),
     MINUTE		(Timestamped.MINUTE_IN_MS),
+    FIVE_MINUTE (Timestamped.MINUTE_IN_MS*5),
     TEN_MINUTE	(Timestamped.MINUTE_IN_MS*10),
     HOUR		(Timestamped.HOUR_IN_MS),
     DAY			(Timestamped.DAY_IN_MS);
