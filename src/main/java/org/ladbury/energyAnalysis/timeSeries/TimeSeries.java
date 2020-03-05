@@ -15,7 +15,7 @@ public class TimeSeries extends ArrayList<TimestampedDouble>
     public TimeSeries(Granularity grain)
     {
         super();
-        summary = new TimeSeriesSummary();
+        summary = new TimeSeriesSummary(grain);
         description = new Description();
         identification = new Identification("unNamed");
     }
@@ -43,6 +43,16 @@ public class TimeSeries extends ArrayList<TimestampedDouble>
     public Identification getIdentification()
     {
         return identification;
+    }
+
+    public void copyFields(TimeSeries timeSeries){
+        this.clear();
+        this.description.copyFields(timeSeries.description);
+        this.identification.copyFields(timeSeries.identification);
+        for( TimestampedDouble element : timeSeries){
+            this.add(element);
+        }
+        this.summary.copyFields(timeSeries.summary);
     }
 
     @Override

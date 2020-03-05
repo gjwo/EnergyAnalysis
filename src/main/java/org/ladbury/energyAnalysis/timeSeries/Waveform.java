@@ -13,16 +13,9 @@ public class Waveform extends TimeSeries
     {
         super(grain);
     }
-    public Waveform(Granularity grain,TimeSeries timeSeries){
-        super(grain);
-        for(TimestampedDouble tsd: timeSeries)
-        {
-            this.add(tsd);
-        }
-        this.getIdentification().setName(timeSeries.getIdentification().getName());
-        this.getIdentification().setSource(timeSeries.getIdentification().getSource());
-        this.getDescription().setMetricType(timeSeries.getDescription().getMetricType());
-        this.summarise();
+    public Waveform(TimeSeries timeSeries){
+        super(timeSeries.getSummary().getGrain());
+        this.copyFields(timeSeries);
     }
     public Instant containsSample(Waveform sample)
     {

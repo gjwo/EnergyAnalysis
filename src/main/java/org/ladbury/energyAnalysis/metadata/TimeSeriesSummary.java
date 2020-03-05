@@ -28,61 +28,60 @@ public class TimeSeriesSummary
     {
         return earliest;
     }
-
     public void setEarliest(Instant earliest)
     {
         this.earliest = earliest;
     }
-
     public Instant getLatest()
     {
         return latest;
     }
-
     public void setLatest(Instant latest)
     {
         this.latest = latest;
     }
-
     public Granularity getGrain()
     {
         return grain;
     }
-
     public void setGrain(Granularity grain)
     {
         this.grain = grain;
     }
-
     public double getFloor()
     {
         return floor;
     }
-
     public void setFloor(double floor)
     {
         this.floor = floor;
     }
-
     public double getCeiling()
     {
         return ceiling;
     }
-
     public void setCeiling(double ceiling)
     {
         this.ceiling = ceiling;
+    }
+
+    public void copyFields(TimeSeriesSummary timeSeriesSummary){
+        this.earliest = timeSeriesSummary.earliest;
+        this.latest = timeSeriesSummary.latest;
+        this.grain = timeSeriesSummary.grain;
+        this.floor = timeSeriesSummary.floor;
+        this.ceiling = timeSeriesSummary.ceiling;
     }
 
     @Override
     public String toString()
     {
         return "TimeSeriesSummary{" +
-                "earliest=" + earliest +
-                ", latest=" + latest +
-                ", grain=" + grain +
-                ", floor=" + floor +
-                ", ceiling=" + ceiling +
+                "earliest = " + earliest +
+                ", latest = " + latest +
+                ", grain = " + grain +
+                ", floor = " + floor +
+                ", ceiling = " + ceiling +
                 '}';
     }
 }

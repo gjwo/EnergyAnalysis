@@ -5,7 +5,7 @@ import org.influxdb.annotation.*;
 import java.time.Instant;
 
 @org.influxdb.annotation.Measurement(name = "Whole_House")
-public class AllMeasurements
+public class BasicAndPowerMeasurements
 {
     @TimeColumn
     @Column(name = "time")
@@ -83,7 +83,7 @@ public class AllMeasurements
     @Override
     public String toString()
     {
-        return "AllMeasurements{" +
+        return "BasicAndPowerMeasurements{" +
                 "time=" + time +
                 ", voltage=" + voltage +
                 ", current=" + current +

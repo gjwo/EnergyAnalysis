@@ -24,13 +24,16 @@ public class Description
     {
         isCumulative = cumulative;
     }
-
+    public void copyFields(Description description){
+        this.metricType = description.metricType;
+        this.isCumulative = description.isCumulative;
+    }
     @Override
     public String toString()
     {
         return "Description{" +
-                "metricType=" + metricType +
-                ", isCumulative=" + isCumulative +
+                "metricType = " + metricType +
+                ", isCumulative = " + isCumulative +
                 '}';
     }
 }
