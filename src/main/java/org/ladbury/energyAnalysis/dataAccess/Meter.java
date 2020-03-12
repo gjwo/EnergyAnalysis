@@ -59,7 +59,7 @@ public class Meter
                 + qm("powerfactor") + ","
                 + qm("current") + ","
                 + qm("voltage")
-                + "FROM " + "discreteMeasures" + " WHERE (\"meter\" = " + this.name + ") AND time >=now() - " + seconds + "s" + " GROUP BY time(1s)";
+                + "FROM " + "\"discreteMeasures\"" + " WHERE (\"meter\" = '"+this.name+"') AND time >=now() - " + seconds + "s" + " GROUP BY time(1s)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processDiscreteReadings(influxDataSource.query(query));
@@ -73,7 +73,7 @@ public class Meter
                 + qm("powerfactor") + ","
                 + qm("current") + ","
                 + qm("voltage")
-                + "FROM " + "discreteMeasures" + " WHERE (\"meter\" = " + this.name + ") AND time >= '"+t1.toString()+ "' AND  time <= '"+t2.toString()+ "' GROUP BY time(1s)";
+                + "FROM \"discreteMeasures\" WHERE (\"meter\" = '" + this.name + "') AND time >= '"+t1.toString()+ "' AND  time <= '"+t2.toString()+ "' GROUP BY time(1s)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processDiscreteReadings(influxDataSource.query(query));
@@ -82,7 +82,7 @@ public class Meter
     {
 
         String query = "SELECT" + " MEAN(\""+MetricPair.getMetricDBName(metricType)+"\") AS \""+MetricPair.getMetricDBName(metricType)+"\" "
-                + "FROM " + this.name + " WHERE time >= '"+t1.toString()+ "' AND  time <= '"+t2.toString()+ "' GROUP BY time(1s)";
+                + "FROM  \"discreteMeasures\" WHERE (\"meter\" = '" + this.name + "') AND time >= '"+t1.toString()+ "' AND  time <= '"+t2.toString()+ "' GROUP BY time(1s)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processReadingsResult(influxDataSource.query(query),metricType);
@@ -164,7 +164,7 @@ public class Meter
     public void loadLatestEnergyReadingsSet(int minutes)
     {
         minutes++; //to get the right number of readings
-        String query = "SELECT" + qs("energy") + "," + qs("cumulativeenergy") + "FROM " + this.name + " WHERE time >=now() - " + minutes + "m" + " GROUP BY time(5m)";
+        String query = "SELECT" + qs("energy") + "," + qs("\"cumulativeEnergy\"") + "FROM " + " WHERE \"meter\" = '"+ this.name + "' AND time >=now() - " + minutes + "m" + " GROUP BY time(5m)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processEnergyReadings(influxDataSource.query(query));
