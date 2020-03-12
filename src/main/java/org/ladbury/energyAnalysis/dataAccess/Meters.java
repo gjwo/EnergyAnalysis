@@ -16,6 +16,13 @@ public class Meters extends ArrayList<Meter>
         if (meter.getName().compareTo(name)==0){
             return meter;
         }
+        System.out.println("Meter: "+name+" not found");
         return null;
+    }
+
+    @Override
+    public String toString()
+    {
+        return super.toString();
     }
 }

@@ -5,18 +5,18 @@ import org.influxdb.annotation.TimeColumn;
 
 import java.time.Instant;
 
-@org.influxdb.annotation.Measurement(name = "Whole_House")
+@org.influxdb.annotation.Measurement(name = "discreteMeasures")
 public class PowerMeasurements
 {
     @TimeColumn
     @Column(name = "time")
     private Instant time;
-    @Column(name = "power", tag = true)
-    private double power;
-    @Column(name = "apparentpower", tag = true)
-    private double apparentpower;
-    @Column(name = "reactivepower", tag = true)
-    private double reactivepower;
+    @Column(name = "realPower", tag = true)
+    private double realPower;
+    @Column(name = "apparentPower", tag = true)
+    private double apparentPower;
+    @Column(name = "reactivePower", tag = true)
+    private double reactivePower;
     @Column(name = "powerfactor", tag = true)
     private double powerfactor;
 
@@ -28,29 +28,29 @@ public class PowerMeasurements
     {
         this.time = time;
     }
-    public double getPower()
+    public double getRealPower()
     {
-        return power;
+        return realPower;
     }
-    public void setPower(double power)
+    public void setRealPower(double realPower)
     {
-        this.power = power;
+        this.realPower = realPower;
     }
-    public double getApparentpower()
+    public double getApparentPower()
     {
-        return apparentpower;
+        return apparentPower;
     }
-    public void setApparentpower(double apparentpower)
+    public void setApparentPower(double apparentPower)
     {
-        this.apparentpower = apparentpower;
+        this.apparentPower = apparentPower;
     }
-    public double getReactivepower()
+    public double getReactivePower()
     {
-        return reactivepower;
+        return reactivePower;
     }
-    public void setReactivepower(double reactivepower)
+    public void setReactivePower(double reactivePower)
     {
-        this.reactivepower = reactivepower;
+        this.reactivePower = reactivePower;
     }
     public double getPowerfactor()
     {
@@ -66,9 +66,9 @@ public class PowerMeasurements
     {
         return "PowerMeasurements{" +
                 "time=" + time +
-                ", power=" + power +
-                ", apparentpower=" + apparentpower +
-                ", reactivepower=" + reactivepower +
+                ", realPower=" + realPower +
+                ", apparentPower=" + apparentPower +
+                ", reactivePower=" + reactivePower +
                 '}';
     }
 }

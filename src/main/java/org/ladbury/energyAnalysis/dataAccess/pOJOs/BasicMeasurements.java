@@ -6,7 +6,7 @@ import org.influxdb.annotation.TimeColumn;
 
 import java.time.Instant;
 
-@Measurement(name = "Whole_House")
+@Measurement(name = "discreteMeasures")
 public class BasicMeasurements
 {
     @TimeColumn

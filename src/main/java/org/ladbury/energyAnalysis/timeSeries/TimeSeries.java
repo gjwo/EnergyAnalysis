@@ -29,7 +29,7 @@ public class TimeSeries extends ArrayList<TimestampedDouble>
             }
             summary.setEarliest(this.get(0).getTimestamp());
             summary.setLatest(this.get(this.size()-1).getTimestamp());
-        } else System.out.println("size 0 in summarise");
+        } else System.out.println("size 0 in summarise for "+description.getMetricType().getMetricName());
     }
     // getters and setters
     public TimeSeriesSummary getSummary()
@@ -59,9 +59,10 @@ public class TimeSeries extends ArrayList<TimestampedDouble>
     public String toString()
     {
         return "TimeSeries{" +
-                "summary=" + summary +
-                ", description=" + description +
-                ", identification=" + identification +
+                "summary = " + summary.toString() +
+                ", description = " + description.toString() +
+                ", identification = " + identification.toString() +
+                ", count = "+ this.size()+
                 '}';
     }
     public String valuesToString(){

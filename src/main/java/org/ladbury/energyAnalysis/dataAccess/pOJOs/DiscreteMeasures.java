@@ -4,8 +4,8 @@ import org.influxdb.annotation.*;
 
 import java.time.Instant;
 
-@org.influxdb.annotation.Measurement(name = "Whole_House")
-public class BasicAndPowerMeasurements
+@org.influxdb.annotation.Measurement(name = "discreteMeasures")
+public class DiscreteMeasures
 {
     @TimeColumn
     @Column(name = "time")
@@ -14,12 +14,12 @@ public class BasicAndPowerMeasurements
     private double voltage;
     @Column(name = "current", tag = true)
     private double current;
-    @Column(name = "power", tag = true)
-    private double power;
-    @Column(name = "apparentpower", tag = true)
-    private double apparentpower;
-    @Column(name = "reactivepower", tag = true)
-    private double reactivepower;
+    @Column(name = "realPower", tag = true)
+    private double realPower;
+    @Column(name = "apparentPower", tag = true)
+    private double apparentPower;
+    @Column(name = "reactivePower", tag = true)
+    private double reactivePower;
     @Column(name = "powerfactor", tag = true)
     private double powerfactor;
 
@@ -31,13 +31,13 @@ public class BasicAndPowerMeasurements
     {
         this.time = time;
     }
-    public double getPower()
+    public double getRealPower()
     {
-        return power;
+        return realPower;
     }
-    public void setPower(double power)
+    public void setRealPower(double realPower)
     {
-        this.power = power;
+        this.realPower = realPower;
     }
     public double getVoltage()
     {
@@ -55,21 +55,21 @@ public class BasicAndPowerMeasurements
     {
         this.current = current;
     }
-    public double getApparentpower()
+    public double getApparentPower()
     {
-        return apparentpower;
+        return apparentPower;
     }
-    public void setApparentpower(double apparentpower)
+    public void setApparentPower(double apparentPower)
     {
-        this.apparentpower = apparentpower;
+        this.apparentPower = apparentPower;
     }
-    public double getReactivepower()
+    public double getReactivePower()
     {
-        return reactivepower;
+        return reactivePower;
     }
-    public void setReactivepower(double reactivepower)
+    public void setReactivePower(double reactivePower)
     {
-        this.reactivepower = reactivepower;
+        this.reactivePower = reactivePower;
     }
     public double getPowerfactor()
     {
@@ -83,13 +83,13 @@ public class BasicAndPowerMeasurements
     @Override
     public String toString()
     {
-        return "BasicAndPowerMeasurements{" +
+        return "DiscreteMeasures{" +
                 "time=" + time +
                 ", voltage=" + voltage +
                 ", current=" + current +
-                ", power=" + power +
-                ", apparentpower=" + apparentpower +
-                ", reactivepower=" + reactivepower +
+                ", realPower=" + realPower +
+                ", apparentPower=" + apparentPower +
+                ", reactivePower=" + reactivePower +
                 ", powerfactor=" + powerfactor +
                 '}';
     }

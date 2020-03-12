@@ -5,14 +5,14 @@ import org.influxdb.annotation.TimeColumn;
 
 import java.time.Instant;
 
-@org.influxdb.annotation.Measurement(name = "Plug1")
+@org.influxdb.annotation.Measurement(name = "DiscreteMeasures")
 public class RealPowerMeasurement
 {
     @TimeColumn
     @Column(name = "time")
     private Instant time;
-    @Column(name = "power", tag = true)
-    private double power;
+    @Column(name = "realPower", tag = true)
+    private double realPower;
 
     public Instant getTime()
     {
@@ -22,21 +22,21 @@ public class RealPowerMeasurement
     {
         this.time = time;
     }
-    public double getPower()
+    public double getRealPower()
     {
-        return power;
+        return realPower;
     }
-    public void setPower(double power)
+    public void setRealPower(double realPower)
     {
-        this.power = power;
+        this.realPower = realPower;
     }
 
     @Override
     public String toString()
     {
-        return "PowerMeasurements{" +
+        return "DiscreteMeasures{" +
                 "time=" + time +
-                ", power=" + power +
+                ", realPower=" + realPower +
                 '}';
     }
 }
