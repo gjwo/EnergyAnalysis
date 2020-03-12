@@ -11,7 +11,7 @@ public class RealPowerMeasurement
     @TimeColumn
     @Column(name = "time")
     private Instant time;
-    @Column(name = "realPower", tag = true)
+    @Column(name = "realPower")
     private double realPower;
 
     public Instant getTime()

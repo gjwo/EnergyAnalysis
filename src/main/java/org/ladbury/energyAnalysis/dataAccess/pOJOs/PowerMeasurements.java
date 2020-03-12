@@ -11,13 +11,13 @@ public class PowerMeasurements
     @TimeColumn
     @Column(name = "time")
     private Instant time;
-    @Column(name = "realPower", tag = true)
+    @Column(name = "realPower")
     private double realPower;
-    @Column(name = "apparentPower", tag = true)
+    @Column(name = "apparentPower")
     private double apparentPower;
-    @Column(name = "reactivePower", tag = true)
+    @Column(name = "reactivePower")
     private double reactivePower;
-    @Column(name = "powerfactor", tag = true)
+    @Column(name = "powerfactor")
     private double powerfactor;
 
     public Instant getTime()

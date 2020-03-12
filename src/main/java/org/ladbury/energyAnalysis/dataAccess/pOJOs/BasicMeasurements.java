@@ -12,9 +12,9 @@ public class BasicMeasurements
     @TimeColumn
     @Column(name = "time")
     private Instant time;
-    @Column(name = "voltage", tag = true)
+    @Column(name = "voltage")
     private double voltage;
-    @Column(name = "current", tag = true)
+    @Column(name = "current")
     private double current;
     public Instant getTime()
     {

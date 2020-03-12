@@ -11,9 +11,9 @@ public class CumulativeEnergyMeasures
     @TimeColumn
     @Column(name = "time")
     private Instant time;
-    @Column(name = "intervalEnergy", tag = true)
+    @Column(name = "intervalEnergy")
     private double intervalEnergy;
-    @Column(name = "cumulativeEnergy", tag = true)
+    @Column(name = "cumulativeEnergy")
     private double cumulativeEnergy;
 
     public Instant getTime()

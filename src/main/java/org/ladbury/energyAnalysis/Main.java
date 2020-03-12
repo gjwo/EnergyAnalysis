@@ -5,7 +5,6 @@ import org.ladbury.energyAnalysis.dataAccess.Meter;
 import org.ladbury.energyAnalysis.dataAccess.Querys;
 import org.ladbury.energyAnalysis.metadata.MetricType;
 import org.ladbury.energyAnalysis.timeSeries.TimeSeries;
-import org.ladbury.energyAnalysis.timeSeries.TimestampedDouble;
 import org.ladbury.energyAnalysis.timeSeries.Waveform;
 
 import java.time.Instant;
@@ -13,8 +12,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 
 import static java.time.LocalDateTime.now;
 
@@ -38,11 +35,12 @@ public class Main
         Instant time1 = yesterdayMidnight.toInstant(ZoneOffset.ofHours(0)).plus(36,ChronoUnit.HOURS);
         //Instant time2 = todayMidnight.toInstant(ZoneOffset.ofHours(0));
         Instant time2 = yesterdayMidnight.toInstant(ZoneOffset.ofHours(0)).plus(37,ChronoUnit.HOURS);
-
+        time1 = now().minusMinutes(10).toInstant(ZoneOffset.ofHours(0));
+        time2 = now().minusMinutes(9).toInstant(ZoneOffset.ofHours(0));
         System.out.println(time1.toString()+ " <-> "+ time2.toString());
 
         Meter wholeHouse = influxDataSource.getMeters().getMeter("Whole_House");
-        wholeHouse.loadReadingsSet(time1,time2);
+        wholeHouse.loadDiscreteReadingsSet(time1,time2);
         System.out.println(wholeHouse.getSeries(MetricType.REAL_POWER).toString());
 
         Meter plug1 = influxDataSource.getMeters().getMeter("Plug1");

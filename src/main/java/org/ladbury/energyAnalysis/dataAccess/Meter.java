@@ -50,7 +50,7 @@ public class Meter
                 '}';
     }
     private String qm(String metric){return " MEAN(\""+metric+"\") AS \""+metric+"\" ";}
-    public void loadLatestReadingsSet(int seconds)
+    public void loadLatestDiscreteReadingsSet(int seconds)
     {
         seconds++; //to get the right number of readings
         String query = "SELECT" + qm("realPower") + ","
@@ -62,9 +62,9 @@ public class Meter
                 + "FROM " + "discreteMeasures" + " WHERE (\"meter\" = " + this.name + ") AND time >=now() - " + seconds + "s" + " GROUP BY time(1s)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
-        processBasicAndPowerReadings(influxDataSource.query(query));
+        processDiscreteReadings(influxDataSource.query(query));
     }
-    public void loadReadingsSet(Instant t1, Instant t2)
+    public void loadDiscreteReadingsSet(Instant t1, Instant t2)
     {
 
         String query = "SELECT" + qm("realPower") + ","
@@ -76,7 +76,7 @@ public class Meter
                 + "FROM " + "discreteMeasures" + " WHERE (\"meter\" = " + this.name + ") AND time >= '"+t1.toString()+ "' AND  time <= '"+t2.toString()+ "' GROUP BY time(1s)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
-        processBasicAndPowerReadings(influxDataSource.query(query));
+        processDiscreteReadings(influxDataSource.query(query));
     }
     public void loadReadings(MetricType metricType, Instant t1, Instant t2)
     {
@@ -103,9 +103,9 @@ public class Meter
         }
         readingsSet.get(MetricType.REAL_POWER).summarise();
     }
-    public void processBasicAndPowerReadings(QueryResult res){
+    public void processDiscreteReadings(QueryResult res){
 
-        List<DiscreteMeasures> discreteMeasurements = resultMapper.toPOJO(res, DiscreteMeasures.class);
+        List<DiscreteMeasures> discreteMeasures = resultMapper.toPOJO(res, DiscreteMeasures.class);
         TimeSeries timeSeries;
 
         timeSeries = new TimeSeries(Granularity.SECOND);
@@ -144,7 +144,7 @@ public class Meter
         timeSeries.getDescription().setMetricType(MetricType.CURRENT);
         readingsSet.put(MetricType.CURRENT,timeSeries);
 
-        for (DiscreteMeasures m: discreteMeasurements)
+        for (DiscreteMeasures m: discreteMeasures)
         {
             readingsSet.get(MetricType.REAL_POWER).add(new TimestampedDouble(m.getRealPower(),m.getTime()));
             readingsSet.get(MetricType.REACTIVE_POWER).add(new TimestampedDouble(m.getReactivePower(),m.getTime()));
