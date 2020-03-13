@@ -49,9 +49,7 @@ public class TimeSeries extends ArrayList<TimestampedDouble>
         this.clear();
         this.description.copyFields(timeSeries.description);
         this.identification.copyFields(timeSeries.identification);
-        for( TimestampedDouble element : timeSeries){
-            this.add(element);
-        }
+        this.addAll(timeSeries);
         this.summary.copyFields(timeSeries.summary);
     }
 
@@ -59,10 +57,10 @@ public class TimeSeries extends ArrayList<TimestampedDouble>
     public String toString()
     {
         return "TimeSeries{" +
-                "summary = " + summary.toString() +
+                "count = "+ this.size()+
+                ", summary = " + summary.toString() +
                 ", description = " + description.toString() +
                 ", identification = " + identification.toString() +
-                ", count = "+ this.size()+
                 '}';
     }
     public String valuesToString(){

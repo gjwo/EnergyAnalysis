@@ -44,28 +44,28 @@ public class Main
         System.out.println(wholeHouse.getSeries(MetricType.REAL_POWER).toString());
 
         Meter plug1 = influxDataSource.getMeters().getMeter("Plug1");
-        plug1.loadReadings(MetricType.REAL_POWER,time1, time2);
+        plug1.loadMetricReadings(MetricType.REAL_POWER,time1, time2);
         System.out.println(plug1.getSeries(MetricType.REAL_POWER).toString());
         Meter plug2 = influxDataSource.getMeters().getMeter("Plug2");
-        plug2.loadReadings(MetricType.REAL_POWER,time1, time2);
+        plug2.loadMetricReadings(MetricType.REAL_POWER,time1, time2);
         System.out.println(plug2.getSeries(MetricType.REAL_POWER).toString());
         Meter plug3 = influxDataSource.getMeters().getMeter("Plug3");
-        plug3.loadReadings(MetricType.REAL_POWER,time1, time2);
+        plug3.loadMetricReadings(MetricType.REAL_POWER,time1, time2);
         System.out.println(plug3.getSeries(MetricType.REAL_POWER).toString());
         Meter plug4 = influxDataSource.getMeters().getMeter("Plug4");
-        plug4.loadReadings(MetricType.REAL_POWER,time1, time2);
+        plug4.loadMetricReadings(MetricType.REAL_POWER,time1, time2);
         System.out.println(plug4.getSeries(MetricType.REAL_POWER).toString());
         Meter plug5 = influxDataSource.getMeters().getMeter("Plug5");
-        plug5.loadReadings(MetricType.REAL_POWER,time1, time2);
+        plug5.loadMetricReadings(MetricType.REAL_POWER,time1, time2);
         System.out.println(plug5.getSeries(MetricType.REAL_POWER).toString());
         Meter plug6 = influxDataSource.getMeters().getMeter("Plug6");
-        plug6.loadReadings(MetricType.REAL_POWER,time1, time2);
+        plug6.loadMetricReadings(MetricType.REAL_POWER,time1, time2);
         System.out.println(plug6.getSeries(MetricType.REAL_POWER).toString());
         Meter plug7 = influxDataSource.getMeters().getMeter("Plug7");
-        plug7.loadReadings(MetricType.REAL_POWER,time1, time2);
+        plug7.loadMetricReadings(MetricType.REAL_POWER,time1, time2);
         System.out.println(plug7.getSeries(MetricType.REAL_POWER).toString());
         Meter plug8 = influxDataSource.getMeters().getMeter("Plug8");
-        plug8.loadReadings(MetricType.REAL_POWER,time1, time2);
+        plug8.loadMetricReadings(MetricType.REAL_POWER,time1, time2);
         System.out.println(plug8.getSeries(MetricType.REAL_POWER).toString());
 
         //wholeHouse.loadLatestReadingsSet(30);

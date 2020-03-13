@@ -49,40 +49,46 @@ public class Meter
                 ", supportedMetricTypes=" + supportedMetricTypes +
                 '}';
     }
-    private String qm(String metric){return " MEAN(\""+metric+"\") AS \""+metric+"\" ";}
+    // query helper methods
+    private String meanAsMetricField(String metric){return " MEAN(\""+metric+"\") AS \""+metric+"\" ";}
+    private String meterClause(){return "(\"meter\" = '"+this.name+"')";    }
+    private String lastSeconds(int seconds){return "time >=now() - " + seconds + "s";}
+    private String lastMinutes(int minutes){return "time >=now() - " + minutes + "m";}
+    private String timeInterval(Instant t1, Instant t2){return "time >= '"+t1.toString()+ "' AND  time <= '"+t2.toString()+ "'";}
+
     public void loadLatestDiscreteReadingsSet(int seconds)
     {
         seconds++; //to get the right number of readings
-        String query = "SELECT" + qm("realPower") + ","
-                + qm("reactivePower") + ","
-                + qm("apparentPower") + ","
-                + qm("powerfactor") + ","
-                + qm("current") + ","
-                + qm("voltage")
-                + "FROM " + "\"discreteMeasures\"" + " WHERE (\"meter\" = '"+this.name+"') AND time >=now() - " + seconds + "s" + " GROUP BY time(1s)";
+        String query = "SELECT" + meanAsMetricField("realPower") + ","
+                + meanAsMetricField("reactivePower") + ","
+                + meanAsMetricField("apparentPower") + ","
+                + meanAsMetricField("powerfactor") + ","
+                + meanAsMetricField("current") + ","
+                + meanAsMetricField("voltage")
+                + "FROM " + "\"discreteMeasures\"" + " WHERE "+ meterClause()+" AND " + lastSeconds(seconds) + " GROUP BY time(1s) fill(0)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processDiscreteReadings(influxDataSource.query(query));
     }
     public void loadDiscreteReadingsSet(Instant t1, Instant t2)
     {
-
-        String query = "SELECT" + qm("realPower") + ","
-                + qm("reactivePower") + ","
-                + qm("apparentPower") + ","
-                + qm("powerfactor") + ","
-                + qm("current") + ","
-                + qm("voltage")
-                + "FROM \"discreteMeasures\" WHERE (\"meter\" = '" + this.name + "') AND time >= '"+t1.toString()+ "' AND  time <= '"+t2.toString()+ "' GROUP BY time(1s)";
+        //todo need to fetch appliance name
+        String query = "SELECT" + meanAsMetricField("realPower") + ","
+                + meanAsMetricField("reactivePower") + ","
+                + meanAsMetricField("apparentPower") + ","
+                + meanAsMetricField("powerfactor") + ","
+                + meanAsMetricField("current") + ","
+                + meanAsMetricField("voltage")
+                + "FROM \"discreteMeasures\" WHERE "+ meterClause()+" AND "+timeInterval(t1,t2)+" GROUP BY time(1s) fill(0)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processDiscreteReadings(influxDataSource.query(query));
     }
-    public void loadReadings(MetricType metricType, Instant t1, Instant t2)
+    public void loadMetricReadings(MetricType metricType, Instant t1, Instant t2)
     {
-
-        String query = "SELECT" + " MEAN(\""+MetricPair.getMetricDBName(metricType)+"\") AS \""+MetricPair.getMetricDBName(metricType)+"\" "
-                + "FROM  \"discreteMeasures\" WHERE (\"meter\" = '" + this.name + "') AND time >= '"+t1.toString()+ "' AND  time <= '"+t2.toString()+ "' GROUP BY time(1s)";
+        //todo need to specify granularity for energy readings
+        String query = "SELECT " + meanAsMetricField(MetricPair.getMetricDBName(metricType))
+                + " FROM  \"discreteMeasures\" WHERE "+ meterClause()+" AND "+timeInterval(t1,t2)+ " GROUP BY time(1s) fill(0)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processReadingsResult(influxDataSource.query(query),metricType);
@@ -143,16 +149,19 @@ public class Meter
         timeSeries.getIdentification().setMeterName(name);
         timeSeries.getDescription().setMetricType(MetricType.CURRENT);
         readingsSet.put(MetricType.CURRENT,timeSeries);
-
+        System.out.println("Number of measures = "+discreteMeasures.size());
         for (DiscreteMeasures m: discreteMeasures)
         {
+            System.out.println(m.toString());
             readingsSet.get(MetricType.REAL_POWER).add(new TimestampedDouble(m.getRealPower(),m.getTime()));
+            System.out.print(readingsSet.get(MetricType.REAL_POWER).size()+",");
             readingsSet.get(MetricType.REACTIVE_POWER).add(new TimestampedDouble(m.getReactivePower(),m.getTime()));
             readingsSet.get(MetricType.APPARENT_POWER).add(new TimestampedDouble(m.getApparentPower(),m.getTime()));
             readingsSet.get(MetricType.POWERFACTOR).add(new TimestampedDouble(m.getPowerfactor(),m.getTime()));
             readingsSet.get(MetricType.VOLTAGE).add(new TimestampedDouble(m.getVoltage(),m.getTime()));
             readingsSet.get(MetricType.CURRENT).add(new TimestampedDouble(m.getCurrent(),m.getTime()));
         }
+        System.out.println();
         readingsSet.get(MetricType.REAL_POWER).summarise();
         readingsSet.get(MetricType.REACTIVE_POWER).summarise();
         readingsSet.get(MetricType.APPARENT_POWER).summarise();
@@ -164,7 +173,7 @@ public class Meter
     public void loadLatestEnergyReadingsSet(int minutes)
     {
         minutes++; //to get the right number of readings
-        String query = "SELECT" + qs("energy") + "," + qs("\"cumulativeEnergy\"") + "FROM " + " WHERE \"meter\" = '"+ this.name + "' AND time >=now() - " + minutes + "m" + " GROUP BY time(5m)";
+        String query = "SELECT" + qs("intervalEnergy") + "," + qs("\"cumulativeEnergy\"") + "FROM " + " WHERE "+ meterClause()+" AND " + lastMinutes(minutes) + " GROUP BY time(5m)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processEnergyReadings(influxDataSource.query(query));
