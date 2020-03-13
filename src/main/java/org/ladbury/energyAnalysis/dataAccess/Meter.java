@@ -183,9 +183,19 @@ public class Meter
     public void loadLatestEnergyReadingsSet(int minutes, Granularity grain)
     {
         minutes++; //to get the right number of readings
-        String query = "SELECT" + qs("intervalEnergy") + "," + qs("\"cumulativeEnergy\"")
+        String query = "SELECT" + qs("intervalEnergy") + "," + qs("cumulativeEnergy")
                 + "FROM \"cumulativeMeasures\" "
                 + " WHERE "+ meterClause()+" AND " + lastMinutes(minutes)
+                + " GROUP BY time("+grain.getInfluxGrain()+")";
+        System.out.println(query);
+        influxDataSource = Main.getInfluxDataSource();
+        processEnergyReadings(influxDataSource.query(query));
+    }
+    public void loadEnergyReadingsSet(Instant t1, Instant t2, Granularity grain)
+    {
+        String query = "SELECT" + qs("intervalEnergy") + "," + qs("cumulativeEnergy")
+                + "FROM \"cumulativeMeasures\" "
+                + " WHERE "+ meterClause()+" AND " + timeInterval(t1,t2)
                 + " GROUP BY time("+grain.getInfluxGrain()+")";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();

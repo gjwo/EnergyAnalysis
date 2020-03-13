@@ -45,13 +45,19 @@ public class Main
         while ( metersIter.hasNext()) {
             meter = metersIter.next();
             meter.loadDiscreteReadingsSet(time1, time2, Granularity.SECOND);
-            System.out.println(meter.getSeries(MetricType.REAL_POWER).toString());
+            meter.loadEnergyReadingsSet(time1,time2,Granularity.FIVE_MINUTE);
+            System.out.println(meter.getSeries(MetricType.ENERGY_KILO).toString());
         }
 
         ts = influxDataSource.getMeters().getMeter( "Whole_House").getSeries(MetricType.REAL_POWER);
         Waveform wholeHouseRealPowerWaveform = new Waveform(ts);
+        System.out.println(wholeHouseRealPowerWaveform.toString());
         ts = influxDataSource.getMeters().getMeter("Plug4").getSeries(MetricType.REAL_POWER);
         Waveform plug4RealPowerWaveform = new Waveform(ts);
+        System.out.println(plug4RealPowerWaveform.toString());
+
+
+
         influxDataSource.close();
      }
 }
