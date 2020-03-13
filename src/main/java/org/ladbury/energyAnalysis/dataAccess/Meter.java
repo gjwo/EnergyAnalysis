@@ -54,7 +54,7 @@ public class Meter
     private String meterClause(){return "(\"meter\" = '"+this.name+"')";    }
     private String lastSeconds(int seconds){return "time >=now() - " + seconds + "s";}
     private String lastMinutes(int minutes){return "time >=now() - " + minutes + "m";}
-    private String timeInterval(Instant t1, Instant t2){return "time >= '"+t1.toString()+ "' AND  time <= '"+t2.toString()+ "'";}
+    private String timeInterval(Instant t1, Instant t2){return "time >= '"+t1.toString()+ "' AND time <= '"+t2.toString()+ "'";}
 
     public void loadLatestDiscreteReadingsSet(int seconds)
     {
@@ -87,8 +87,8 @@ public class Meter
     public void loadMetricReadings(MetricType metricType, Instant t1, Instant t2)
     {
         //todo need to specify granularity for energy readings
-        String query = "SELECT " + meanAsMetricField(MetricPair.getMetricDBName(metricType))
-                + " FROM  \"discreteMeasures\" WHERE "+ meterClause()+" AND "+timeInterval(t1,t2)+ " GROUP BY time(1s) fill(0)";
+        String query = "SELECT" + meanAsMetricField(MetricPair.getMetricDBName(metricType))
+                + "FROM \"discreteMeasures\" WHERE "+ meterClause()+" AND "+timeInterval(t1,t2)+ " GROUP BY time(1s) fill(0)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processReadingsResult(influxDataSource.query(query),metricType);
@@ -99,9 +99,9 @@ public class Meter
         TimeSeries timeSeries;
 
         timeSeries = new TimeSeries(Granularity.SECOND);
-        timeSeries.getIdentification().setName(MetricType.REAL_POWER.getMetricName());
+        timeSeries.getIdentification().setName(metricType.getMetricName());
         timeSeries.getIdentification().setMeterName(name);
-        timeSeries.getDescription().setMetricType(MetricType.REAL_POWER);
+        timeSeries.getDescription().setMetricType(metricType);
         readingsSet.put(MetricType.REAL_POWER,timeSeries);
         for (RealPowerMeasurement  m: realPowerMeasurement)
         {
@@ -152,9 +152,9 @@ public class Meter
         System.out.println("Number of measures = "+discreteMeasures.size());
         for (DiscreteMeasures m: discreteMeasures)
         {
-            System.out.println(m.toString());
+            //System.out.println(m.toString());
             readingsSet.get(MetricType.REAL_POWER).add(new TimestampedDouble(m.getRealPower(),m.getTime()));
-            System.out.print(readingsSet.get(MetricType.REAL_POWER).size()+",");
+            //System.out.print(readingsSet.get(MetricType.REAL_POWER).size()+",");
             readingsSet.get(MetricType.REACTIVE_POWER).add(new TimestampedDouble(m.getReactivePower(),m.getTime()));
             readingsSet.get(MetricType.APPARENT_POWER).add(new TimestampedDouble(m.getApparentPower(),m.getTime()));
             readingsSet.get(MetricType.POWERFACTOR).add(new TimestampedDouble(m.getPowerfactor(),m.getTime()));

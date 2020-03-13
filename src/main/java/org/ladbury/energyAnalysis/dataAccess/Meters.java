@@ -1,13 +1,13 @@
 package org.ladbury.energyAnalysis.dataAccess;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.ListIterator;
 
 public class Meters extends ArrayList<Meter>
 {
-    Meters( ArrayList<String> measurements){
+    public Meters( ArrayList<String> meters){
         super();
-        for (String measurement :measurements){
+        for (String measurement :meters){
             this.add(new Meter(measurement));
         }
     }
@@ -19,7 +19,6 @@ public class Meters extends ArrayList<Meter>
         System.out.println("Meter: "+name+" not found");
         return null;
     }
-
     @Override
     public String toString()
     {
