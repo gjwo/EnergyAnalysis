@@ -5,6 +5,7 @@ import org.ladbury.energyAnalysis.dataAccess.Meter;
 import org.ladbury.energyAnalysis.dataAccess.Meters;
 import org.ladbury.energyAnalysis.dataAccess.Querys;
 import org.ladbury.energyAnalysis.metadata.MetricType;
+import org.ladbury.energyAnalysis.timeSeries.Granularity;
 import org.ladbury.energyAnalysis.timeSeries.TimeSeries;
 import org.ladbury.energyAnalysis.timeSeries.Waveform;
 
@@ -36,9 +37,6 @@ public class Main
         LocalDateTime todayMidnight = yesterdayMidnight.plusDays(1); //start of tomorrow
         Instant time1 = yesterdayMidnight.toInstant(ZoneOffset.ofHours(0));
         Instant time2 = todayMidnight.toInstant(ZoneOffset.ofHours(0));
-        //Instant time2 = yesterdayMidnight.toInstant(ZoneOffset.ofHours(0)).plus(37,ChronoUnit.HOURS);
-        //time1 = now().minusMinutes(10).toInstant(ZoneOffset.ofHours(0));
-        //time2 = now().minusMinutes(9).toInstant(ZoneOffset.ofHours(0));
         System.out.println(time1.toString()+ " <-> "+ time2.toString());
 
         //Load all discreteMeasures into meters
@@ -46,7 +44,7 @@ public class Main
         Meter meter;
         while ( metersIter.hasNext()) {
             meter = metersIter.next();
-            meter.loadDiscreteReadingsSet(time1, time2);
+            meter.loadDiscreteReadingsSet(time1, time2, Granularity.SECOND);
             System.out.println(meter.getSeries(MetricType.REAL_POWER).toString());
         }
 

@@ -41,6 +41,11 @@ public class Meter
         if (metricType != null) supportedMetricTypes.add(new MetricPair(metricName,metricType));
     }
 
+    public void clearReadings()
+    {
+        this.readingsSet.clear();
+    }
+
     @Override
     public String toString()
     {
@@ -56,7 +61,7 @@ public class Meter
     private String lastMinutes(int minutes){return "time >=now() - " + minutes + "m";}
     private String timeInterval(Instant t1, Instant t2){return "time >= '"+t1.toString()+ "' AND time <= '"+t2.toString()+ "'";}
 
-    public void loadLatestDiscreteReadingsSet(int seconds)
+    public void loadLatestDiscreteReadingsSet(int seconds, Granularity grain)
     {
         seconds++; //to get the right number of readings
         String query = "SELECT" + meanAsMetricField("realPower") + ","
@@ -65,12 +70,14 @@ public class Meter
                 + meanAsMetricField("powerfactor") + ","
                 + meanAsMetricField("current") + ","
                 + meanAsMetricField("voltage")
-                + "FROM " + "\"discreteMeasures\"" + " WHERE "+ meterClause()+" AND " + lastSeconds(seconds) + " GROUP BY time(1s) fill(0)";
+                + "FROM " + "\"discreteMeasures\""
+                + " WHERE "+ meterClause()+" AND " + lastSeconds(seconds)
+                + " GROUP BY time("+grain.getInfluxGrain()+") fill(0)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processDiscreteReadings(influxDataSource.query(query));
     }
-    public void loadDiscreteReadingsSet(Instant t1, Instant t2)
+    public void loadDiscreteReadingsSet(Instant t1, Instant t2, Granularity grain)
     {
         //todo need to fetch appliance name
         String query = "SELECT" + meanAsMetricField("realPower") + ","
@@ -79,16 +86,19 @@ public class Meter
                 + meanAsMetricField("powerfactor") + ","
                 + meanAsMetricField("current") + ","
                 + meanAsMetricField("voltage")
-                + "FROM \"discreteMeasures\" WHERE "+ meterClause()+" AND "+timeInterval(t1,t2)+" GROUP BY time(1s) fill(0)";
+                + "FROM \"discreteMeasures\""
+                + " WHERE "+ meterClause()+" AND "+timeInterval(t1,t2)
+                + " GROUP BY time("+grain.getInfluxGrain()+") fill(0)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processDiscreteReadings(influxDataSource.query(query));
     }
-    public void loadMetricReadings(MetricType metricType, Instant t1, Instant t2)
+    public void loadMetricReadings(MetricType metricType, Instant t1, Instant t2, Granularity grain)
     {
-        //todo need to specify granularity for energy readings
         String query = "SELECT" + meanAsMetricField(MetricPair.getMetricDBName(metricType))
-                + "FROM \"discreteMeasures\" WHERE "+ meterClause()+" AND "+timeInterval(t1,t2)+ " GROUP BY time(1s) fill(0)";
+                + "FROM \"discreteMeasures\""
+                +" WHERE "+ meterClause()+" AND "+timeInterval(t1,t2)
+                + " GROUP BY time("+grain.getInfluxGrain()+") fill(0)";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processReadingsResult(influxDataSource.query(query),metricType);
@@ -170,10 +180,13 @@ public class Meter
         readingsSet.get(MetricType.CURRENT).summarise();
     }
     private String qs(String metric){return " SUM(\""+metric+"\") AS \""+metric+"\" ";}
-    public void loadLatestEnergyReadingsSet(int minutes)
+    public void loadLatestEnergyReadingsSet(int minutes, Granularity grain)
     {
         minutes++; //to get the right number of readings
-        String query = "SELECT" + qs("intervalEnergy") + "," + qs("\"cumulativeEnergy\"") + "FROM " + " WHERE "+ meterClause()+" AND " + lastMinutes(minutes) + " GROUP BY time(5m)";
+        String query = "SELECT" + qs("intervalEnergy") + "," + qs("\"cumulativeEnergy\"")
+                + "FROM \"cumulativeMeasures\" "
+                + " WHERE "+ meterClause()+" AND " + lastMinutes(minutes)
+                + " GROUP BY time("+grain.getInfluxGrain()+")";
         System.out.println(query);
         influxDataSource = Main.getInfluxDataSource();
         processEnergyReadings(influxDataSource.query(query));
