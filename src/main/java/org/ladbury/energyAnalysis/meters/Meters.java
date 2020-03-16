@@ -1,14 +1,19 @@
-package org.ladbury.energyAnalysis.dataAccess;
+package org.ladbury.energyAnalysis.meters;
 
 import java.util.ArrayList;
-import java.util.ListIterator;
 
 public class Meters extends ArrayList<Meter>
 {
     public Meters( ArrayList<String> meters){
         super();
-        for (String measurement :meters){
-            this.add(new Meter(measurement));
+        for (String meterName :meters){
+            Meter meter = new Meter(meterName);
+            if (meterName.startsWith("Plug")){
+                meter.setType(MeterType.TASMOTA);
+            } else {
+                meter.setType(MeterType.PMON10);
+            }
+            this.add(meter);
         }
     }
     public Meter getMeter(String name){

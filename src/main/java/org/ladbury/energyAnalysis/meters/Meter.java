@@ -1,8 +1,9 @@
-package org.ladbury.energyAnalysis.dataAccess;
+package org.ladbury.energyAnalysis.meters;
 
 import org.influxdb.dto.QueryResult;
 import org.influxdb.impl.InfluxDBResultMapper;
 import org.ladbury.energyAnalysis.Main;
+import org.ladbury.energyAnalysis.dataAccess.InfluxDataSource;
 import org.ladbury.energyAnalysis.dataAccess.pOJOs.DiscreteMeasures;
 import org.ladbury.energyAnalysis.dataAccess.pOJOs.CumulativeEnergyMeasures;
 import org.ladbury.energyAnalysis.dataAccess.pOJOs.RealPowerMeasurement;
@@ -22,12 +23,13 @@ public class Meter
     //Class fields
     private InfluxDataSource influxDataSource;
     private String name;
-    private final ArrayList<MetricPair> supportedMetricTypes;
+    private final ArrayList<MetricMappings> supportedMetricTypes;
     private final InfluxDBResultMapper resultMapper;
     private final Map<MetricType,TimeSeries> readingsSet;
+    private MeterType meterType;
 
     //Constructor
-    Meter(String name){
+    public Meter(String name){
         this.name = name;
         this.supportedMetricTypes = new ArrayList<>();
         this.resultMapper = new InfluxDBResultMapper(); // thread-safe - can be reused
@@ -36,10 +38,12 @@ public class Meter
     //getter
     public String getName() { return name; }
 
-    void addMetricDBName(String metricName){
-        MetricType metricType = MetricPair.getMetricType(metricName);
-        if (metricType != null) supportedMetricTypes.add(new MetricPair(metricName,metricType));
+    public void addMetricDBName(String metricName){
+        MetricType metricType = MetricMappings.getMetricType(metricName);
+        if (metricType != null) supportedMetricTypes.add(new MetricMappings(metricName,metricType));
     }
+
+    public void setType(MeterType meterType){ this.meterType = meterType;}
 
     public void clearReadings()
     {
@@ -95,7 +99,7 @@ public class Meter
     }
     public void loadMetricReadings(MetricType metricType, Instant t1, Instant t2, Granularity grain)
     {
-        String query = "SELECT" + meanAsMetricField(MetricPair.getMetricDBName(metricType))
+        String query = "SELECT" + meanAsMetricField(MetricMappings.getMetricDBName(metricType))
                 + "FROM \"discreteMeasures\""
                 +" WHERE "+ meterClause()+" AND "+timeInterval(t1,t2)
                 + " GROUP BY time("+grain.getInfluxGrain()+") fill(0)";

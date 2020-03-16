@@ -4,11 +4,8 @@ import java.time.Instant;
 
 public class Waveform extends TimeSeries
 {
-
-    public Waveform()
-    {
-        super( Granularity.SECOND);
-    }
+    //Constructors
+    public Waveform() {this( Granularity.SECOND);}
     public Waveform(Granularity grain)
     {
         super(grain);
@@ -17,6 +14,7 @@ public class Waveform extends TimeSeries
         super(timeSeries.getSummary().getGrain());
         this.copyFields(timeSeries);
     }
+
     public Instant containsSample(Waveform sample)
     {
         return null;

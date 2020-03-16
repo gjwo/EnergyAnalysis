@@ -1,7 +1,5 @@
 package org.ladbury.energyAnalysis.metadata;
 
-import org.ladbury.energyAnalysis.dataAccess.Meter;
-
 public class Identification
 {
     private String name;

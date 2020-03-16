@@ -4,26 +4,27 @@ import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.dto.Query;
-import org.ladbury.energyAnalysis.Main;
+import org.ladbury.energyAnalysis.meters.Meter;
+import org.ladbury.energyAnalysis.meters.Meters;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class InfluxDataSource
 {
     private final InfluxDB influxDBServer;
     private final String url;
     private String dbName;
-    private final List<String> validDBs = new ArrayList<>();
-    private final List<String> validTags = new ArrayList<>();
-    private Meters meters;
+    private final List<String> validDBs;
+    private final List<String> validTags;
+    private final List<String> validMeasurements;
+
     public InfluxDataSource(String url, String dbName)
     {
         this.url = url;
         this.dbName = dbName;
         influxDBServer = InfluxDBFactory.connect(url);
-        initialiseValidDBs();
+        validDBs = loadValidDBs();
         boolean found = false;
         for (String dbn: validDBs)
         {
@@ -33,41 +34,49 @@ public class InfluxDataSource
             }
         }
         if (!found) System.exit(2);
-        meters = new Meters(loadTags());
-        //System.out.println(meters);
-        SetFieldKeys(meters);
-        //System.out.println(meters);
+        validMeasurements = loadMeasurements();
+        validTags = loadTags();
      }
+
     //getters
     public InfluxDB getInfluxDBServer(){return this.influxDBServer;}
     public String getDbName(){return this.dbName;}
-    public void setDbName(String dbName){this.dbName = dbName;}
-    public Meters getMeters(){return this.meters;}
+    public void getDBInfo()
+    {
+        System.out.println("Database name: "+dbName);
+        System.out.println("Database url: "+url);
+    }
 
-    private void initialiseValidDBs(){
-        QueryResult res;
-        res = influxDBServer.query(new Query("SHOW DATABASES"));
-        List<QueryResult.Result> resultsList= res.getResults();
+    public Meters loadMeters(){
+        Meters meters = new Meters(loadTags());
+        //System.out.println(meters);
+        LoadMeterFieldKeys(meters);
+        //System.out.println(meters);
+        return meters;
+    }
+
+    private ArrayList<String> loadValidDBs(){
+        QueryResult queryResult;
+        ArrayList<String> results = new ArrayList<>();
+        queryResult = influxDBServer.query(new Query("SHOW DATABASES"));
+        List<QueryResult.Result> resultsList= queryResult.getResults();
         List <QueryResult.Series> resultSeriesList;
         for (QueryResult.Result result :resultsList) {
             resultSeriesList = result.getSeries();
             for (QueryResult.Series series : resultSeriesList){
                 for (List<Object> objects : series.getValues()) {
-                    validDBs.add(objects.toArray()[0].toString());
+                    results.add(objects.toArray()[0].toString());
                 }
             }
         }
-    }
-    public QueryResult queryByName(QueryName queryName)
-    {
-        return influxDBServer.query( Main.getQuerys().getQuery(queryName));
+        return results;
     }
 
     public QueryResult query(String queryString){
         return influxDBServer.query(new Query(queryString,dbName));
     }
 
-    public ArrayList<String> getMeasurements(){
+    private ArrayList<String> loadMeasurements(){
         QueryResult queryResult;
         ArrayList<String> results = new ArrayList<>();
         queryResult = influxDBServer.query(new Query("SHOW MEASUREMENTS",getDbName()));
@@ -96,7 +105,6 @@ public class InfluxDataSource
             //for (QueryResult.Series series : resultSeriesList){
                 for (List<Object> objects : series.getValues()) {
                     results.add(objects.toArray()[1].toString());
-                    validTags.add(objects.toArray()[1].toString());
                     //System.out.print(objects.toArray()[1].toString()+", ");
                 }
                 //System.out.println();
@@ -106,7 +114,7 @@ public class InfluxDataSource
         return results;
     }
 
-    public void SetFieldKeys(Meters meters)
+    public void LoadMeterFieldKeys(Meters meters)
     {
         //todo needs refining, currently adds all metrics to every meter
         QueryResult queryResult;
