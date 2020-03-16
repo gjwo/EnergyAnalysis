@@ -60,11 +60,7 @@ public class InfluxDataSource
 
 
     public Meters loadMeters(){
-        Meters meters = new Meters(loadMeterTags());
-        //System.out.println(meters);
-        LoadMeterFieldKeys(meters);
-        //System.out.println(meters);
-        return meters;
+        return new Meters(loadMeterTags());
     }
 
     public QueryResult query(String queryString){
@@ -118,10 +114,11 @@ public class InfluxDataSource
         //System.out.println();
         return results;
     }
-
-    public void LoadMeterFieldKeys(Meters meters)
+/*
+    public ArrayList<String> LoadMeterFieldKeys(Meters meters)
     {
-        //todo needs refining, currently adds all metrics to every meter
+        // now done statically in meter
+        ArrayList<String> keys = new ArrayList<>();
         QueryResult queryResult;
         queryResult = influxDBServer.query(new Query("SHOW FIELD KEYS",getDbName()));
         List<QueryResult.Result> resultsList= queryResult.getResults();
@@ -130,18 +127,17 @@ public class InfluxDataSource
             for (QueryResult.Result result : resultsList) {
                 resultSeriesList = result.getSeries();
                 for (QueryResult.Series series : resultSeriesList) {
-                    //String measurementName = series.getName();
                     for (List<Object> objects : series.getValues()) {
-                        //System.out.print(objects.toArray()[0].toString() + ", ");
-                        meter.addMetricDBName(objects.toArray()[0].toString());
+                        keys.add(objects.toArray()[0].toString());
                     }
-                    //System.out.println();
                 }
-                //System.out.println();
             }
             System.out.println(meter.toString());
         }
+        return keys;
     }
+
+ */
     // query helper methods
     private String meanAsMetricField(String metric){return " MEAN(\""+metric+"\") AS \""+metric+"\" ";}
     private String meterClause(String meterName){return "(\"meter\" = '"+meterName+"')";    }

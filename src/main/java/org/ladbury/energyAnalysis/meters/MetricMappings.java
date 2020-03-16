@@ -8,34 +8,27 @@ import java.util.HashMap;
 
 public class MetricMappings
 {
-    private String metricDBName;
-    private MetricType metricType;
-    private static HashMap<MeterType, ArrayList<String>> supportedMetrics;
+    private static HashMap<MeterType, ArrayList<String>> supportedDBFields;
+    private static HashMap<MeterType, ArrayList<MetricType>> supportedMetrics;
 
     static {
+        supportedDBFields = new HashMap<>();
+        supportedDBFields.put(MeterType.TASMOTA, new ArrayList<>(
+                Arrays.asList("current", "voltage", "realPower", "apparentPower", "reactivePower", "cumulativeEnergy", "Yesterday")));
+        supportedDBFields.put(MeterType.PMON10, new ArrayList<>(
+                Arrays.asList("current", "voltage", "realPower", "apparentPower", "reactivePower", "powerfactor", "intervalEnergy", "cumulativeEnergy")));
         supportedMetrics = new HashMap<>();
         supportedMetrics.put(MeterType.TASMOTA, new ArrayList<>(
-                Arrays.asList("current", "voltage", "realPower", "apparentPower", "reactivePower", "cumulativeEnergy", "Yesterday")));
+                Arrays.asList(MetricType.CURRENT,MetricType.VOLTAGE, MetricType.REAL_POWER, MetricType.APPARENT_POWER, MetricType.REACTIVE_POWER,
+                        MetricType.ENERGY_KILO)));
         supportedMetrics.put(MeterType.PMON10, new ArrayList<>(
-                Arrays.asList("current", "voltage", "realPower", "apparentPower", "reactivePower", "powerfactor", "intervalEnergy", "cumulativeEnergy")));
+                Arrays.asList(MetricType.CURRENT,MetricType.VOLTAGE, MetricType.REAL_POWER, MetricType.APPARENT_POWER, MetricType.REACTIVE_POWER, MetricType.POWERFACTOR,
+                        MetricType.ENERGY, MetricType.ENERGY_KILO)));
     }
 
-    MetricMappings(String metricDBName, MetricType metricType)
-    {
-        this.metricDBName = metricDBName;
-        this.metricType = metricType;
-    }
 
-    public static ArrayList<String> getSupportedMetricsDB(MeterType meterType){return supportedMetrics.get(meterType);}
-
-    @Override
-    public String toString()
-    {
-        return "MetricMappings{" +
-                "metricDBName='" + metricDBName + '\'' +
-                ", metricType=" + metricType +
-                '}';
-    }
+    public static ArrayList<String> getSupportedDBFields(MeterType meterType){return supportedDBFields.get(meterType);}
+    public static ArrayList<MetricType> getSupportedMetricTypes(MeterType meterType){return  supportedMetrics.get(meterType);}
 
 
     static MetricType getMetricType(String metricDBName)

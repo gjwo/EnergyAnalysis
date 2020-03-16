@@ -7,11 +7,11 @@ public class Meters extends ArrayList<Meter>
     public Meters( ArrayList<String> meters){
         super();
         for (String meterName :meters){
-            Meter meter = new Meter(meterName);
+            Meter meter ;
             if (meterName.startsWith("Plug")){
-                meter.setType(MeterType.TASMOTA);
+                meter= new Meter(meterName,MeterType.TASMOTA);
             } else {
-                meter.setType(MeterType.PMON10);
+                meter= new Meter(meterName,MeterType.PMON10);
             }
             this.add(meter);
         }

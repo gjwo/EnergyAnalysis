@@ -15,24 +15,18 @@ public class Meter
 {
     //Class fields
     private String name;
-    private final ArrayList<MetricMappings> supportedMetricTypes;
+    private final ArrayList<MetricType> supportedMetricTypes;
     private final Map<MetricType,TimeSeries> readingsSet;
     private MeterType meterType;
 
     //Constructor
-    public Meter(String name){
+    public Meter(String name, MeterType meterType){
         this.name = name;
-        this.supportedMetricTypes = new ArrayList<>();
+        this.supportedMetricTypes = MetricMappings.getSupportedMetricTypes(meterType);
         this.readingsSet = new HashMap<>();
     }
     //getter
     public String getName() { return name; }
-
-    public void addMetricDBName(String metricName){
-        MetricType metricType = MetricMappings.getMetricType(metricName);
-        if (metricType != null) supportedMetricTypes.add(new MetricMappings(metricName,metricType));
-    }
-
     public void setType(MeterType meterType){ this.meterType = meterType;}
 
     public void clearReadings()
@@ -66,59 +60,31 @@ public class Meter
 
     public void processDiscreteReadings(List<DiscreteMeasures> discreteMeasures){
         TimeSeries timeSeries = new TimeSeries(Granularity.SECOND);
-        timeSeries.getIdentification().setName(MetricType.REAL_POWER.getMetricName());
-        timeSeries.getIdentification().setMeterName(name);
-        timeSeries.getDescription().setMetricType(MetricType.REAL_POWER);
-        readingsSet.put(MetricType.REAL_POWER,timeSeries);
-
-        timeSeries = new TimeSeries(Granularity.SECOND);
-        timeSeries.getIdentification().setName(MetricType.REACTIVE_POWER.getMetricName());
-        timeSeries.getIdentification().setMeterName(name);
-        timeSeries.getDescription().setMetricType(MetricType.REACTIVE_POWER);
-        readingsSet.put(MetricType.REACTIVE_POWER,timeSeries);
-
-        timeSeries = new TimeSeries(Granularity.SECOND);
-        timeSeries.getIdentification().setName(MetricType.APPARENT_POWER.getMetricName());
-        timeSeries.getIdentification().setMeterName(name);
-        timeSeries.getDescription().setMetricType(MetricType.APPARENT_POWER);
-        readingsSet.put(MetricType.APPARENT_POWER,timeSeries);
-
-        timeSeries = new TimeSeries(Granularity.SECOND);
-        timeSeries.getIdentification().setName(MetricType.POWERFACTOR.getMetricName());
-        timeSeries.getIdentification().setMeterName(name);
-        timeSeries.getDescription().setMetricType(MetricType.POWERFACTOR);
-        readingsSet.put(MetricType.POWERFACTOR,timeSeries);
-
-        timeSeries = new TimeSeries(Granularity.SECOND);
-        timeSeries.getIdentification().setName(MetricType.VOLTAGE.getMetricName());
-        timeSeries.getIdentification().setMeterName(name);
-        timeSeries.getDescription().setMetricType(MetricType.VOLTAGE);
-        readingsSet.put(MetricType.VOLTAGE,timeSeries);
-
-        timeSeries = new TimeSeries(Granularity.SECOND);
-        timeSeries.getIdentification().setName(MetricType.CURRENT.getMetricName());
-        timeSeries.getIdentification().setMeterName(name);
-        timeSeries.getDescription().setMetricType(MetricType.CURRENT);
-        readingsSet.put(MetricType.CURRENT,timeSeries);
+        for (MetricType mt : supportedMetricTypes){
+            if (!mt.isCumulative()) {
+                timeSeries.getIdentification().setName(mt.getMetricName());
+                 timeSeries.getIdentification().setMeterName(name);
+                timeSeries.getDescription().setMetricType(mt);
+                readingsSet.put(mt, timeSeries);
+            }
+        }
         System.out.println("Number of measures = "+discreteMeasures.size());
         for (DiscreteMeasures m: discreteMeasures)
         {
-            //System.out.println(m.toString());
             readingsSet.get(MetricType.REAL_POWER).add(new TimestampedDouble(m.getRealPower(),m.getTime()));
-            //System.out.print(readingsSet.get(MetricType.REAL_POWER).size()+",");
             readingsSet.get(MetricType.REACTIVE_POWER).add(new TimestampedDouble(m.getReactivePower(),m.getTime()));
             readingsSet.get(MetricType.APPARENT_POWER).add(new TimestampedDouble(m.getApparentPower(),m.getTime()));
             readingsSet.get(MetricType.POWERFACTOR).add(new TimestampedDouble(m.getPowerfactor(),m.getTime()));
             readingsSet.get(MetricType.VOLTAGE).add(new TimestampedDouble(m.getVoltage(),m.getTime()));
             readingsSet.get(MetricType.CURRENT).add(new TimestampedDouble(m.getCurrent(),m.getTime()));
         }
+
         System.out.println();
-        readingsSet.get(MetricType.REAL_POWER).summarise();
-        readingsSet.get(MetricType.REACTIVE_POWER).summarise();
-        readingsSet.get(MetricType.APPARENT_POWER).summarise();
-        readingsSet.get(MetricType.POWERFACTOR).summarise();
-        readingsSet.get(MetricType.VOLTAGE).summarise();
-        readingsSet.get(MetricType.CURRENT).summarise();
+        for (MetricType mt : supportedMetricTypes){
+            if (!mt.isCumulative()) {
+                readingsSet.get(mt).summarise();
+            }
+        }
     }
     public void processEnergyReadings(List<CumulativeEnergyMeasures> cumulativeEnergyMeasurements){
         TimeSeries timeSeries = new TimeSeries(Granularity.FIVE_MINUTE);
