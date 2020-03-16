@@ -4,9 +4,15 @@ import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.dto.Query;
+import org.influxdb.impl.InfluxDBResultMapper;
+import org.ladbury.energyAnalysis.dataAccess.pOJOs.CumulativeEnergyMeasures;
+import org.ladbury.energyAnalysis.dataAccess.pOJOs.DiscreteMeasures;
+import org.ladbury.energyAnalysis.dataAccess.pOJOs.RealPowerMeasurement;
 import org.ladbury.energyAnalysis.meters.Meter;
 import org.ladbury.energyAnalysis.meters.Meters;
+import org.ladbury.energyAnalysis.timeSeries.Granularity;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,8 +22,9 @@ public class InfluxDataSource
     private final String url;
     private String dbName;
     private final List<String> validDBs;
-    private final List<String> validTags;
+    private final List<String> validMeterTags;
     private final List<String> validMeasurements;
+    private final InfluxDBResultMapper resultMapper;
 
     public InfluxDataSource(String url, String dbName)
     {
@@ -35,51 +42,39 @@ public class InfluxDataSource
         }
         if (!found) System.exit(2);
         validMeasurements = loadMeasurements();
-        validTags = loadTags();
-     }
+        validMeterTags = loadMeterTags();
+        this.resultMapper = new InfluxDBResultMapper(); // thread-safe - can be reused
+    }
 
     //getters
     public InfluxDB getInfluxDBServer(){return this.influxDBServer;}
     public String getDbName(){return this.dbName;}
+    public List<String> getValidDBs() {return validDBs;}
+    public List<String> getValidMeterTags() { return validMeterTags; }
+    public List<String> getValidMeasurements() { return validMeasurements; }
     public void getDBInfo()
     {
         System.out.println("Database name: "+dbName);
         System.out.println("Database url: "+url);
     }
 
+
     public Meters loadMeters(){
-        Meters meters = new Meters(loadTags());
+        Meters meters = new Meters(loadMeterTags());
         //System.out.println(meters);
         LoadMeterFieldKeys(meters);
         //System.out.println(meters);
         return meters;
     }
 
-    private ArrayList<String> loadValidDBs(){
-        QueryResult queryResult;
-        ArrayList<String> results = new ArrayList<>();
-        queryResult = influxDBServer.query(new Query("SHOW DATABASES"));
-        List<QueryResult.Result> resultsList= queryResult.getResults();
-        List <QueryResult.Series> resultSeriesList;
-        for (QueryResult.Result result :resultsList) {
-            resultSeriesList = result.getSeries();
-            for (QueryResult.Series series : resultSeriesList){
-                for (List<Object> objects : series.getValues()) {
-                    results.add(objects.toArray()[0].toString());
-                }
-            }
-        }
-        return results;
-    }
-
     public QueryResult query(String queryString){
         return influxDBServer.query(new Query(queryString,dbName));
     }
 
-    private ArrayList<String> loadMeasurements(){
-        QueryResult queryResult;
+    // Query result helper function
+    private ArrayList<String> extractResults(QueryResult queryResult)
+    {
         ArrayList<String> results = new ArrayList<>();
-        queryResult = influxDBServer.query(new Query("SHOW MEASUREMENTS",getDbName()));
         List<QueryResult.Result> resultsList= queryResult.getResults();
         List <QueryResult.Series> resultSeriesList;
         for (QueryResult.Result result :resultsList) {
@@ -90,10 +85,20 @@ public class InfluxDataSource
                 }
             }
         }
-        return results;
+    return  results;
     }
 
-    public ArrayList<String> loadTags(){
+    private ArrayList<String> loadValidDBs(){
+        QueryResult queryResult = influxDBServer.query(new Query("SHOW DATABASES"));
+        return extractResults(queryResult);
+    }
+
+    private ArrayList<String> loadMeasurements(){
+        QueryResult queryResult = influxDBServer.query(new Query("SHOW MEASUREMENTS",getDbName()));
+        return extractResults(queryResult);
+    }
+
+    public ArrayList<String> loadMeterTags(){
         QueryResult queryResult;
         ArrayList<String> results = new ArrayList<>();
         queryResult = influxDBServer.query(new Query("SHOW TAG VALUES WITH KEY = \"meter\"",getDbName()));
@@ -125,7 +130,7 @@ public class InfluxDataSource
             for (QueryResult.Result result : resultsList) {
                 resultSeriesList = result.getSeries();
                 for (QueryResult.Series series : resultSeriesList) {
-                    String measurementName = series.getName();
+                    //String measurementName = series.getName();
                     for (List<Object> objects : series.getValues()) {
                         //System.out.print(objects.toArray()[0].toString() + ", ");
                         meter.addMetricDBName(objects.toArray()[0].toString());
@@ -136,6 +141,82 @@ public class InfluxDataSource
             }
             System.out.println(meter.toString());
         }
+    }
+    // query helper methods
+    private String meanAsMetricField(String metric){return " MEAN(\""+metric+"\") AS \""+metric+"\" ";}
+    private String meterClause(String meterName){return "(\"meter\" = '"+meterName+"')";    }
+    private String lastSeconds(int seconds){return "time >=now() - " + seconds + "s";}
+    private String lastMinutes(int minutes){return "time >=now() - " + minutes + "m";}
+    private String timeInterval(Instant t1, Instant t2){return "time >= '"+t1.toString()+ "' AND time <= '"+t2.toString()+ "'";}
+
+    public List<DiscreteMeasures> loadLatestDiscreteReadingsSet(int seconds, Granularity grain, String meterName)
+    {
+        seconds++; //to get the right number of readings
+        String query = "SELECT" + meanAsMetricField("realPower") + ","
+                + meanAsMetricField("reactivePower") + ","
+                + meanAsMetricField("apparentPower") + ","
+                + meanAsMetricField("powerfactor") + ","
+                + meanAsMetricField("current") + ","
+                + meanAsMetricField("voltage")
+                + "FROM " + "\"discreteMeasures\""
+                + " WHERE "+ meterClause(meterName)+" AND " + lastSeconds(seconds)
+                + " GROUP BY time("+grain.getInfluxGrain()+") fill(0)";
+        System.out.println(query);
+        QueryResult res = query(query);
+        return resultMapper.toPOJO(res, DiscreteMeasures.class);
+    }
+
+    public  List<DiscreteMeasures>  loadDiscreteReadingsSet(Instant t1, Instant t2, Granularity grain, String meterName)
+    {
+        //todo need to fetch appliance name
+        String query = "SELECT" + meanAsMetricField("realPower") + ","
+                + meanAsMetricField("reactivePower") + ","
+                + meanAsMetricField("apparentPower") + ","
+                + meanAsMetricField("powerfactor") + ","
+                + meanAsMetricField("current") + ","
+                + meanAsMetricField("voltage")
+                + "FROM \"discreteMeasures\""
+                + " WHERE "+ meterClause(meterName)+" AND "+timeInterval(t1,t2)
+                + " GROUP BY time("+grain.getInfluxGrain()+") fill(0)";
+        System.out.println(query);
+        QueryResult res = query(query);
+       return resultMapper.toPOJO(res, DiscreteMeasures.class);
+    }
+/*
+    public void loadMetricReadings(MetricType metricType, Instant t1, Instant t2, Granularity grain)
+    {
+        String query = "SELECT" + meanAsMetricField(MetricMappings.getMetricDBName(metricType))
+                + "FROM \"discreteMeasures\""
+                +" WHERE "+ meterClause()+" AND "+timeInterval(t1,t2)
+                + " GROUP BY time("+grain.getInfluxGrain()+") fill(0)";
+        System.out.println(query);
+        QueryResult res = query(query);
+        processReadingsResult(resultMapper.toPOJO(res, RealPowerMeasurement.class),metricType);
+    }
+
+ */
+    private String qs(String metric){return " SUM(\""+metric+"\") AS \""+metric+"\" ";}
+    public List<CumulativeEnergyMeasures> loadLatestEnergyReadingsSet(int minutes, Granularity grain, String meterName)
+    {
+        minutes++; //to get the right number of readings
+        String query = "SELECT" + qs("intervalEnergy") + "," + qs("cumulativeEnergy")
+                + "FROM \"cumulativeMeasures\" "
+                + " WHERE "+ meterClause(meterName)+" AND " + lastMinutes(minutes)
+                + " GROUP BY time("+grain.getInfluxGrain()+")";
+        System.out.println(query);
+        QueryResult res = query(query);
+        return (resultMapper.toPOJO(res, CumulativeEnergyMeasures.class));
+    }
+
+    public List<CumulativeEnergyMeasures> loadEnergyReadingsSet(Instant t1, Instant t2, Granularity grain, String meterName)
+    {
+        String query = "SELECT" + qs("intervalEnergy") + "," + qs("cumulativeEnergy")
+                + "FROM \"cumulativeMeasures\" "
+                + " WHERE "+ meterClause(meterName)+" AND " + timeInterval(t1,t2)
+                + " GROUP BY time("+grain.getInfluxGrain()+")";
+        System.out.println(query);
+        QueryResult res = query(query);
+        return resultMapper.toPOJO(res, CumulativeEnergyMeasures.class);
     }
 
     public void close(){

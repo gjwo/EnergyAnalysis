@@ -40,8 +40,8 @@ public class Main
         Meter meter;
         while ( metersIter.hasNext()) {
             meter = metersIter.next();
-            meter.loadDiscreteReadingsSet(time1, time2, Granularity.SECOND);
-            meter.loadEnergyReadingsSet(time1,time2,Granularity.FIVE_MINUTE);
+            meter.processDiscreteReadings(influxDataSource.loadDiscreteReadingsSet(time1, time2, Granularity.SECOND,meter.getName()));
+            meter.processEnergyReadings(influxDataSource.loadEnergyReadingsSet(time1,time2,Granularity.FIVE_MINUTE,meter.getName()));
             System.out.println(meter.getSeries(MetricType.ENERGY_KILO).toString());
         }
 

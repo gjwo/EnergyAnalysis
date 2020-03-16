@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-class MetricMappings
+public class MetricMappings
 {
     private String metricDBName;
     private MetricType metricType;
