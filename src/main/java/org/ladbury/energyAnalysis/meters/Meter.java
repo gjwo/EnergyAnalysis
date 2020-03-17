@@ -69,16 +69,14 @@ public class Meter
             }
         }
         System.out.println("Number of measures = "+discreteMeasures.size());
-        for (DiscreteMeasures m: discreteMeasures)
+        for (DiscreteMeasures discreteMeasure: discreteMeasures)
         {
-            readingsSet.get(MetricType.REAL_POWER).add(new TimestampedDouble(m.getRealPower(),m.getTime()));
-            readingsSet.get(MetricType.REACTIVE_POWER).add(new TimestampedDouble(m.getReactivePower(),m.getTime()));
-            readingsSet.get(MetricType.APPARENT_POWER).add(new TimestampedDouble(m.getApparentPower(),m.getTime()));
-            readingsSet.get(MetricType.POWERFACTOR).add(new TimestampedDouble(m.getPowerfactor(),m.getTime()));
-            readingsSet.get(MetricType.VOLTAGE).add(new TimestampedDouble(m.getVoltage(),m.getTime()));
-            readingsSet.get(MetricType.CURRENT).add(new TimestampedDouble(m.getCurrent(),m.getTime()));
+            for (MetricType mt :supportedMetricTypes){
+                if (!mt.isCumulative()) {
+                    readingsSet.get(mt).add(new TimestampedDouble(discreteMeasure.getValue(mt),discreteMeasure.getTime()));
+                }
+            }
         }
-
         System.out.println();
         for (MetricType mt : supportedMetricTypes){
             if (!mt.isCumulative()) {
@@ -86,6 +84,7 @@ public class Meter
             }
         }
     }
+
     public void processEnergyReadings(List<CumulativeEnergyMeasures> cumulativeEnergyMeasurements){
         TimeSeries timeSeries = new TimeSeries(Granularity.FIVE_MINUTE);
         timeSeries.getIdentification().setName(MetricType.ENERGY.getMetricName());

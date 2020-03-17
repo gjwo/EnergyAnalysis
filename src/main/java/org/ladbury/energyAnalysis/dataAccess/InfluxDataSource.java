@@ -52,10 +52,20 @@ public class InfluxDataSource
     public List<String> getValidDBs() {return validDBs;}
     public List<String> getValidMeterTags() { return validMeterTags; }
     public List<String> getValidMeasurements() { return validMeasurements; }
-    public void getDBInfo()
+    public void printDBInfo()
     {
-        System.out.println("Database name: "+dbName);
-        System.out.println("Database url: "+url);
+        System.out.print("Database name: "+dbName);
+        System.out.println(" url: "+url);
+        System.out.print("Measures: ");
+        for (String measure: getValidMeasurements()){
+            System.out.print(measure+" ");
+        }
+        System.out.println();
+        System.out.print("Meter Tags: ");
+        for (String tag: getValidMeterTags()){
+            System.out.print(tag+" ");
+        }
+        System.out.println();
     }
 
 
@@ -102,10 +112,10 @@ public class InfluxDataSource
         List <QueryResult.Series> resultSeriesList;
         for (QueryResult.Result result :resultsList) {
             resultSeriesList = result.getSeries();
-            QueryResult.Series series = resultSeriesList.get(0);
+            QueryResult.Series series = resultSeriesList.get(0);// element zero is first measure alphabetically  (cumulativeMeasures)
             //for (QueryResult.Series series : resultSeriesList){
                 for (List<Object> objects : series.getValues()) {
-                    results.add(objects.toArray()[1].toString());
+                    results.add(objects.toArray()[1].toString()); // element 0 is key, element 1 is value
                     //System.out.print(objects.toArray()[1].toString()+", ");
                 }
                 //System.out.println();

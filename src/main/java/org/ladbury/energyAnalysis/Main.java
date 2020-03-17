@@ -27,13 +27,14 @@ public class Main
     {
         TimeSeries ts;
         influxDataSource = new InfluxDataSource("http://10.0.128.2:8086","household_energy");
+        influxDataSource.printDBInfo();
         meters = influxDataSource.loadMeters();
         LocalDateTime localNow = now(ZoneId.of("Europe/London"));
         LocalDateTime yesterdayMidnight = localNow.truncatedTo(ChronoUnit.DAYS).minusDays(1); //start of today -1 + yesterday
         LocalDateTime todayMidnight = yesterdayMidnight.plusDays(1); //start of tomorrow
         Instant time1 = yesterdayMidnight.toInstant(ZoneOffset.ofHours(0));
         Instant time2 = todayMidnight.toInstant(ZoneOffset.ofHours(0));
-        System.out.println(time1.toString()+ " <-> "+ time2.toString());
+        System.out.println("Time Period: "+time1.toString()+ " <-> "+ time2.toString());
 
         //Load all discreteMeasures into meters
         ListIterator<Meter> metersIter = getMeters().listIterator();

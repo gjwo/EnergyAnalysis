@@ -1,6 +1,7 @@
 package org.ladbury.energyAnalysis.dataAccess.pOJOs;
 
 import org.influxdb.annotation.*;
+import org.ladbury.energyAnalysis.metadata.MetricType;
 
 import java.time.Instant;
 
@@ -92,5 +93,17 @@ public class DiscreteMeasures
                 ", reactivePower=" + reactivePower +
                 ", powerfactor=" + powerfactor +
                 '}';
+    }
+    public double getValue(MetricType metricType)
+    {
+        switch (metricType){
+            case REAL_POWER: return getRealPower();
+            case REACTIVE_POWER: return getReactivePower();
+            case APPARENT_POWER: return getApparentPower();
+            case POWERFACTOR:   return getPowerfactor();
+            case VOLTAGE: return  getVoltage();
+            case CURRENT: return getCurrent();
+            default: return 0.0;
+        }
     }
 }
