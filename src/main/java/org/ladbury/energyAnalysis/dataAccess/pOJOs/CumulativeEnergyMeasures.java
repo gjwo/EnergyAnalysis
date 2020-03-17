@@ -2,11 +2,12 @@ package org.ladbury.energyAnalysis.dataAccess.pOJOs;
 
 import org.influxdb.annotation.Column;
 import org.influxdb.annotation.TimeColumn;
+import org.ladbury.energyAnalysis.metadata.MetricType;
 
 import java.time.Instant;
 
 @org.influxdb.annotation.Measurement(name = "cumulativeMeasures")
-public class CumulativeEnergyMeasures
+public class CumulativeEnergyMeasures implements MetricCapable
 {
     @TimeColumn
     @Column(name = "time")
@@ -49,5 +50,21 @@ public class CumulativeEnergyMeasures
                 ", Interval Energy=" + intervalEnergy +
                 ", Cumulative Energy=" + cumulativeEnergy +
                 '}';
+    }
+    public double getValue(MetricType metricType)
+    {
+        switch (metricType){
+            case ENERGY_KILO: return  getCumulativeEnergy();
+            case ENERGY: return getIntervalEnergy();
+            default: return 0.0;
+        }
+    }
+    public boolean containsMetric(MetricType metricType)
+    {
+        switch (metricType){
+            case ENERGY_KILO:
+            case ENERGY:  return  true;
+            default: return false;
+        }
     }
 }

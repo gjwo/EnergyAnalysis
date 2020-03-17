@@ -6,7 +6,7 @@ import org.ladbury.energyAnalysis.metadata.MetricType;
 import java.time.Instant;
 
 @org.influxdb.annotation.Measurement(name = "discreteMeasures")
-public class DiscreteMeasures
+public class DiscreteMeasures implements MetricCapable
 {
     @TimeColumn
     @Column(name = "time")
@@ -104,6 +104,18 @@ public class DiscreteMeasures
             case VOLTAGE: return  getVoltage();
             case CURRENT: return getCurrent();
             default: return 0.0;
+        }
+    }
+    public boolean containsMetric(MetricType metricType)
+    {
+        switch (metricType){
+            case REAL_POWER:
+            case REACTIVE_POWER:
+            case APPARENT_POWER:
+            case POWERFACTOR:
+            case VOLTAGE:
+            case CURRENT:  return  true;
+            default: return false;
         }
     }
 }

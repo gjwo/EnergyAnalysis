@@ -3,11 +3,12 @@ package org.ladbury.energyAnalysis.dataAccess.pOJOs;
 import org.influxdb.annotation.Column;
 import org.influxdb.annotation.Measurement;
 import org.influxdb.annotation.TimeColumn;
+import org.ladbury.energyAnalysis.metadata.MetricType;
 
 import java.time.Instant;
 
 @Measurement(name = "discreteMeasures")
-public class BasicMeasurements
+public class BasicMeasurements  implements MetricCapable
 {
     @TimeColumn
     @Column(name = "time")
@@ -50,4 +51,21 @@ public class BasicMeasurements
                 ", current=" + current +
                 '}';
     }
+    public double getValue(MetricType metricType)
+    {
+        switch (metricType){
+            case VOLTAGE: return  getVoltage();
+            case CURRENT: return getCurrent();
+            default: return 0.0;
+        }
+    }
+    public boolean containsMetric(MetricType metricType)
+    {
+        switch (metricType){
+            case VOLTAGE:
+            case CURRENT:  return  true;
+            default: return false;
+        }
+    }
+
 }

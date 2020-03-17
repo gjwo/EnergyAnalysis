@@ -2,11 +2,12 @@ package org.ladbury.energyAnalysis.dataAccess.pOJOs;
 
 import org.influxdb.annotation.Column;
 import org.influxdb.annotation.TimeColumn;
+import org.ladbury.energyAnalysis.metadata.MetricType;
 
 import java.time.Instant;
 
 @org.influxdb.annotation.Measurement(name = "discreteMeasures")
-public class PowerMeasurements
+public class PowerMeasurements implements MetricCapable
 {
     @TimeColumn
     @Column(name = "time")
@@ -69,6 +70,27 @@ public class PowerMeasurements
                 ", realPower=" + realPower +
                 ", apparentPower=" + apparentPower +
                 ", reactivePower=" + reactivePower +
+                ", powerfactor=" + powerfactor +
                 '}';
+    }
+    public double getValue(MetricType metricType)
+    {
+        switch (metricType){
+            case REAL_POWER: return getRealPower();
+            case REACTIVE_POWER: return getReactivePower();
+            case APPARENT_POWER: return getApparentPower();
+            case POWERFACTOR:   return getPowerfactor();
+            default: return 0.0;
+        }
+    }
+    public boolean containsMetric(MetricType metricType)
+    {
+        switch (metricType){
+            case REAL_POWER:
+            case REACTIVE_POWER:
+            case APPARENT_POWER:
+            case POWERFACTOR:     return  true;
+            default: return false;
+        }
     }
 }
