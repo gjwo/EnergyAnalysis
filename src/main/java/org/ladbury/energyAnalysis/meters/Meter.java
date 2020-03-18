@@ -68,11 +68,10 @@ public class Meter
                 readingsSet.put(mt, timeSeries);
             }
         }
-        System.out.println("Number of measures = "+discreteMeasures.size());
         for (DiscreteMeasures discreteMeasure: discreteMeasures)
         {
             for (MetricType mt :supportedMetricTypes){
-                if (!mt.isCumulative()) {
+                if (discreteMeasure.containsMetric(mt)) {
                     readingsSet.get(mt).add(new TimestampedDouble(discreteMeasure.getValue(mt),discreteMeasure.getTime()));
                 }
             }
@@ -107,6 +106,7 @@ public class Meter
         readingsSet.get(MetricType.ENERGY).summarise();
         readingsSet.get(MetricType.ENERGY_KILO).summarise();
     }
+
     public TimeSeries getSeries(MetricType metricType){
         if(readingsSet.containsKey(metricType)) return readingsSet.get(metricType);
         return null;
