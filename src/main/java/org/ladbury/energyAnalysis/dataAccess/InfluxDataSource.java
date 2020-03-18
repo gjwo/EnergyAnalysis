@@ -4,7 +4,6 @@ import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.dto.Query;
-import org.influxdb.impl.InfluxDBResultMapper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,14 +12,12 @@ public class InfluxDataSource
     private final InfluxDB influxDBServer;
     private final String url;
     private final List<String> validDBs;
-    private final InfluxDBResultMapper resultMapper;
 
     public InfluxDataSource(String url)
     {
         this.url = url;
         influxDBServer = InfluxDBFactory.connect(url);
         validDBs = loadValidDBs();
-        this.resultMapper = new InfluxDBResultMapper(); // thread-safe - can be reused
     }
 
     //getters
@@ -29,21 +26,25 @@ public class InfluxDataSource
     public String getURL() {return this.url;}
     public void printDBInfo(String dbName)
     {
-        System.out.print("Database name: "+dbName);
-        System.out.println(" url: "+getURL());
-        System.out.print("Measures: ");
+        System.out.println(getInfluxDBServer().toString());
+        System.out.print("url: "+getURL());
+        System.out.print(" DataBases: ");
+        for (String db: validDBs){
+            System.out.print(db+" ");
+        }
+        System.out.println();
+        System.out.println("Specific info for database: "+dbName);
+        System.out.println("Measures: ");
         for (String measure: loadMeasurements(dbName)){
             System.out.print(measure+" ");
         }
         System.out.println();
     }
     public boolean isValidDBName(String DBName){
-        boolean found = false;
-        for (String dbn: validDBs)
+        for (String dbn: getValidDBs())
         {
             if (dbn.compareTo(DBName) == 0){
-                found = true;
-                break;
+                return true;
             }
         }
         return false;

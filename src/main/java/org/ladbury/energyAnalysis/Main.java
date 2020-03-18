@@ -61,5 +61,6 @@ public class Main
         Waveform plug4RealPowerWaveform = new Waveform(ts);
         System.out.println(plug4RealPowerWaveform.toString());
         influxDataSource.close();
+        System.exit(0);
      }
 }
