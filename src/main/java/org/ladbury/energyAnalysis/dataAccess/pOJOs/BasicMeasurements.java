@@ -3,6 +3,7 @@ package org.ladbury.energyAnalysis.dataAccess.pOJOs;
 import org.influxdb.annotation.Column;
 import org.influxdb.annotation.Measurement;
 import org.influxdb.annotation.TimeColumn;
+import org.ladbury.energyAnalysis.dataAccess.MetricCapable;
 import org.ladbury.energyAnalysis.metadata.MetricType;
 
 import java.time.Instant;

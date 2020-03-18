@@ -1,4 +1,4 @@
-package org.ladbury.energyAnalysis.dataAccess.pOJOs;
+package org.ladbury.energyAnalysis.dataAccess;
 
 import org.ladbury.energyAnalysis.metadata.MetricType;
 
