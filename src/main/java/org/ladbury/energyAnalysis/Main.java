@@ -29,7 +29,12 @@ public class Main
     {
         TimeSeries ts;
         String inputDBName = "household_energy";
-        influxDataSource = new InfluxDataSource("http://10.0.128.2:8086");
+        String datahub = "http://10.0.128.20:8086"; //data source
+        String sensors = "sensors"; //bucket containing the sensor data
+        String orgid = "7c59acc825f67a9a"; //Organisation id
+        String organisation = "Exmouth home"; //Organisation name
+        String energyAnalysisToken ="2B6WcZgsUDq0b7udqOgRvKtCbyBFLAiGGLJ_ueXC9i1lav_1CC8ObIXvnCdbhU9oEcw3hgqR1e84SFmKCGX57w==";
+        influxDataSource = new InfluxDataSource(datahub);
         if (!influxDataSource.isValidDBName(inputDBName)){
             System.out.println("Invalid input DB Name");
             influxDataSource.printDBInfo(inputDBName);
@@ -56,10 +61,10 @@ public class Main
 
         ts = getMeters().getMeter( "Whole_House").getSeries(MetricType.REAL_POWER);
         Waveform wholeHouseRealPowerWaveform = new Waveform(ts);
-        System.out.println(wholeHouseRealPowerWaveform.toString());
+        System.out.println(wholeHouseRealPowerWaveform);
         ts = getMeters().getMeter("Plug4").getSeries(MetricType.REAL_POWER);
         Waveform plug4RealPowerWaveform = new Waveform(ts);
-        System.out.println(plug4RealPowerWaveform.toString());
+        System.out.println(plug4RealPowerWaveform);
         influxDataSource.close();
         System.exit(0);
      }
